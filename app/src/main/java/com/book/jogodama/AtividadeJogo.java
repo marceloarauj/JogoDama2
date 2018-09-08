@@ -2,9 +2,12 @@ package com.book.jogodama;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import com.book.simplegameenginev1.SGAcivity;
+import com.book.simplegameenginev1.SGInputPublisher;
+import com.book.simplegameenginev1.SGInputSubscriber;
 import com.book.simplegameenginev1.SGPreferences;
 
 public class AtividadeJogo extends SGAcivity {
@@ -29,7 +32,14 @@ public class AtividadeJogo extends SGAcivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-       // visao.movePlayer(event.getX(),event.getY()); // movimentos
+
+        if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+
+            visao.realizarJogada(event.getX(),event.getY());
+        }
+
         return true;
     }
 }
+
+

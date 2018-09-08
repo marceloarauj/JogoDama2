@@ -1,21 +1,15 @@
 package com.book.jogodama;
 
+import android.graphics.RectF;
+
 public class Casa {
 
     private Peça peça;
-    private float left;
-    private float top;
-    private float right;
-    private float bottom;
+    private RectF posicao;
 
-    public void setDimensoes(float left,float top, float right,float bottom){
+    public RectF getPosicao() { return posicao; }
 
-        this.top = top;
-        this.left= left;
-        this.right = right;
-        this.bottom = bottom;
-    }
-
+    public void setPosicao(RectF pos){this.posicao = pos;}
     public void setPeça(Peça p){peça = p;}
     public void removePeça(){peça = null;}
 

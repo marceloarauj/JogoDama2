@@ -1,5 +1,6 @@
 package com.book.jogodama;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,11 +24,15 @@ public class VisaoJogo extends SGView {
     private ArrayList<Peça> peçasVermelhas = new ArrayList<>();
     private ArrayList<Peça> peçasBrancas = new ArrayList<>();
     private Casa[][] casa = new Casa[8][8];
+    private Peça peçaSelecionada = null;
 
     private SGImage tabuleiro;
 
+    private boolean selecionar = false;
+
     private int larguraTabuleiro = 680;
     private int alturaTabuleiro = 680;
+
     private int larguraCasa = larguraTabuleiro/8;
     private int alturaCasa = alturaTabuleiro/8;
 
@@ -37,9 +42,17 @@ public class VisaoJogo extends SGView {
     private RectF posicaoPeça = new RectF();
 
     Point inicioTabuleiro = new Point();
+    private boolean minhaVez=true;
+
+    //desenhar retangulos no local da movimentação
+    Casa esquerda = null;
+    Casa direita = null;
 
     @Override
     protected void setup(){ // usado para criar as configurações do desenho
+
+        larguraTabuleiro = getDimensions().x - 40;
+        alturaTabuleiro =  larguraTabuleiro;
 
         SGImageFactory imageFactory = getImageFactory();
         //adicionar imagem do tabuleiro
@@ -48,8 +61,9 @@ public class VisaoJogo extends SGView {
         for(int i =0; i < 12; i++){
 
             Peça peça = new Peça();
-            peça.setImagemPeça(imageFactory.createImage(R.drawable.pvermelharainha));
+            peça.setImagemPeça(imageFactory.createImage(R.drawable.vermelha));
             peça.setChaveDaPeça(i);
+            peça.setJogador(1);
             peçasVermelhas.add(peça);
 
         }
@@ -57,8 +71,9 @@ public class VisaoJogo extends SGView {
         for(int i =0; i < 12; i++){
 
             Peça peça = new Peça();
-            peça.setImagemPeça(imageFactory.createImage(R.drawable.pbrancarainha));
+            peça.setImagemPeça(imageFactory.createImage(R.drawable.branca));
             peça.setChaveDaPeça(i);
+            peça.setJogador(2);
             peçasBrancas.add(peça);
 
         }
@@ -76,9 +91,9 @@ public class VisaoJogo extends SGView {
         posicaoTabuleiro.set(esquerda,cima,direita,baixo);
 
 
-        //configurarTabuleiro();
-        configurarPeças(viewCenter);
 
+        configurarPeças(viewCenter); // posição das peças com o canvas
+        configurarTabuleiro(viewCenter); // matriz
     }
 
     @Override
@@ -95,6 +110,8 @@ public class VisaoJogo extends SGView {
         mTempImageSource.set(0,0,larguraTabuleiro,alturaTabuleiro);
         renderer.drawImage(tabuleiro, mTempImageSource,posicaoTabuleiro);
 
+        // desenhar as peças em suas posições atuais
+
         for(int i =0; i < peçasVermelhas.size();i++) {
             mTempImageSource.set(0, 0, 61, 62);
             renderer.drawImage(peçasVermelhas.get(i).getImagemPeça(), mTempImageSource, peçasVermelhas.get(i).getPosicaoPeça());
@@ -105,47 +122,81 @@ public class VisaoJogo extends SGView {
             renderer.drawImage(peçasBrancas.get(i).getImagemPeça(), mTempImageSource, peçasBrancas.get(i).getPosicaoPeça());
 
         }
+        //desenhar quadros amarelos nos possíveis locais de movimentação
+        if(esquerda != null){
+            renderer.drawRect(esquerda.getPosicao(),Color.YELLOW);
+        }
+        if(direita != null){
+            renderer.drawRect(direita.getPosicao(), Color.YELLOW);
+        }
         //finalizar desenho
         renderer.endDrawing();
     }
 
-    public void configurarTabuleiro(){
+    public void configurarTabuleiro(Point centro){
 
-        // posição das peças vermelhas na matriz
-        casa[0][0].setPeça(peçasVermelhas.get(0));
-        casa[2][0].setPeça(peçasVermelhas.get(1));
-        casa[4][0].setPeça(peçasVermelhas.get(2));
-        casa[6][0].setPeça(peçasVermelhas.get(3));
-        casa[1][1].setPeça(peçasVermelhas.get(4));
-        casa[3][1].setPeça(peçasVermelhas.get(5));
-        casa[5][1].setPeça(peçasVermelhas.get(6));
-        casa[7][1].setPeça(peçasVermelhas.get(7));
-        casa[0][2].setPeça(peçasVermelhas.get(8));
-        casa[2][2].setPeça(peçasVermelhas.get(9));
-        casa[4][2].setPeça(peçasVermelhas.get(10));
-        casa[6][2].setPeça(peçasVermelhas.get(11));
+        int x =1;
+        int y=1;
+        RectF posicaoCasa;
+        Point referencial = new Point();
+
+        referencial.x = centro.x - larguraTabuleiro /2;
+        referencial.y = centro.y - alturaTabuleiro /2;
+
+        for(int i =0; i < 8; i++){
+
+            y = 1;
+
+            for(int j =0; j < 8; j++){
+
+                posicaoCasa = this.calcularPosicao(referencial,x,y);
+
+                casa[i][j] = new Casa();
+
+                casa[i][j].setPosicao(posicaoCasa);
+
+                y = y + 2;
+
+            }
+            x = x + 2;
+        }
+
+        //posição das peças vermelhas na matriz      // peça armazena a sua posição
+        casa[2][0].setPeça(peçasVermelhas.get(1));   peçasVermelhas.get(1).setXY(2,0);
+        casa[4][0].setPeça(peçasVermelhas.get(2));   peçasVermelhas.get(2).setXY(4,0);
+        casa[6][0].setPeça(peçasVermelhas.get(3));   peçasVermelhas.get(3).setXY(6,0);
+        casa[1][1].setPeça(peçasVermelhas.get(4));   peçasVermelhas.get(4).setXY(1,1);
+        casa[3][1].setPeça(peçasVermelhas.get(5));   peçasVermelhas.get(5).setXY(3,1);
+        casa[5][1].setPeça(peçasVermelhas.get(6));   peçasVermelhas.get(6).setXY(5,1);
+        casa[7][1].setPeça(peçasVermelhas.get(7));   peçasVermelhas.get(7).setXY(7,1);
+        casa[0][2].setPeça(peçasVermelhas.get(8));   peçasVermelhas.get(8).setXY(0,2);
+        casa[2][2].setPeça(peçasVermelhas.get(9));   peçasVermelhas.get(9).setXY(2,2);
+        casa[4][2].setPeça(peçasVermelhas.get(10));  peçasVermelhas.get(10).setXY(4,2);
+        casa[6][2].setPeça(peçasVermelhas.get(11));  peçasVermelhas.get(11).setXY(6,2);
 
         // posição das peças brancas na matriz
 
-        casa[1][5].setPeça(peçasBrancas.get(0));
-        casa[3][5].setPeça(peçasBrancas.get(1));
-        casa[5][5].setPeça(peçasBrancas.get(2));
-        casa[7][5].setPeça(peçasBrancas.get(3));
-        casa[0][6].setPeça(peçasBrancas.get(4));
-        casa[2][6].setPeça(peçasBrancas.get(5));
-        casa[4][6].setPeça(peçasBrancas.get(6));
-        casa[6][6].setPeça(peçasBrancas.get(7));
-        casa[1][7].setPeça(peçasBrancas.get(8));
-        casa[3][7].setPeça(peçasBrancas.get(9));
-        casa[5][7].setPeça(peçasBrancas.get(10));
-        casa[7][7].setPeça(peçasBrancas.get(11));
+        casa[1][5].setPeça(peçasBrancas.get(0));     peçasBrancas.get(0).setXY(1,5);
+        casa[3][5].setPeça(peçasBrancas.get(1));     peçasBrancas.get(1).setXY(3,5);
+        casa[5][5].setPeça(peçasBrancas.get(2));     peçasBrancas.get(2).setXY(5,5);
+        casa[7][5].setPeça(peçasBrancas.get(3));     peçasBrancas.get(3).setXY(7,5);
+        casa[0][6].setPeça(peçasBrancas.get(4));     peçasBrancas.get(4).setXY(0,6);
+        casa[2][6].setPeça(peçasBrancas.get(5));     peçasBrancas.get(5).setXY(2,6);
+        casa[4][6].setPeça(peçasBrancas.get(6));     peçasBrancas.get(6).setXY(4,6);
+        casa[6][6].setPeça(peçasBrancas.get(7));     peçasBrancas.get(7).setXY(6,6);
+        casa[1][7].setPeça(peçasBrancas.get(8));     peçasBrancas.get(8).setXY(1,7);
+        casa[3][7].setPeça(peçasBrancas.get(9));     peçasBrancas.get(9).setXY(3,7);
+        casa[5][7].setPeça(peçasBrancas.get(10));    peçasBrancas.get(10).setXY(5,7);
+        casa[7][7].setPeça(peçasBrancas.get(11));    peçasBrancas.get(11).setXY(7,7);
     }
 
+    // invocado pelo setup e desenha as peças em suas posições corretas
     public void configurarPeças(Point point){
 
         // posicionar peças, encontrar fórmula matematica
        Point p = new Point();
 
+       // ponto (0,0) da imagem do tabuleiro mas não da tela
        p.x = point.x - larguraTabuleiro /2 ;
        p.y = point.y - alturaTabuleiro / 2 ;
 
@@ -233,11 +284,142 @@ public class VisaoJogo extends SGView {
         p1.x = p.x + (larguraTabuleiro/16) *x;
         p1.y = p.y + (alturaTabuleiro/16) * y;
 
-        float esquerda = p1.x - 61/2;
-        float cima = p1.y - 62/2;
-        float direita=p1.x +61/2;
-        float baixo= p1.y + 62/2;
+        float esquerda = p1.x - (larguraTabuleiro/8)/2;
+        float cima = p1.y - (alturaTabuleiro/8)/2;
+        float direita=p1.x +(larguraTabuleiro/8)/2;
+        float baixo= p1.y + (alturaTabuleiro/8)/2;
 
         return new RectF(esquerda,cima,direita,baixo);
     }
+
+
+    public void realizarJogada(float x, float y) {
+
+        if(minhaVez){
+
+        RectF peçaAtual;
+        SGImageFactory imageFactory = getImageFactory();
+
+
+        if (selecionar == false) {
+
+
+            for (int i = 0; i < peçasBrancas.size(); i++) {
+
+                peçaAtual = peçasBrancas.get(i).getPosicaoPeça();
+
+
+                if (x >= peçaAtual.left & x <= peçaAtual.right &
+                        y >= peçaAtual.top & y <= peçaAtual.bottom) {
+
+                    this.peçaSelecionada = peçasBrancas.get(i);
+                    selecionar = true;
+
+                    if (peçaSelecionada.getPosX() < 7 & peçaSelecionada.getPosY() > 0) {
+
+                        direita = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
+
+                    }
+
+                    //casa para movimentar à esquerda
+                    if (peçaSelecionada.getPosX() > 0 & peçaSelecionada.getPosY() > 0) {
+
+                        esquerda = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
+
+
+                    }
+
+                    break;
+                }
+
+                  minhaVez = true;
+            }
+
+        } else {
+            // casa atual da minha peça
+            Casa c = casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()];
+            Casa c1 = null;
+            Casa c2 = null;
+            // casa para movimentar à direita
+            if (peçaSelecionada.getPosX() < 7 & peçaSelecionada.getPosY() > 0) {
+
+                c1 = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
+
+            }
+
+            //casa para movimentar à esquerda
+            if (peçaSelecionada.getPosX() > 0 & peçaSelecionada.getPosY() > 0) {
+
+                c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
+
+
+            }
+
+            RectF atualizar;
+
+            if (c1 != null) { // jogada para à direita
+
+                atualizar = c1.getPosicao();
+
+                if (x >= atualizar.left & x <= atualizar.right &
+                        y >= atualizar.top & y <= atualizar.bottom) {
+
+                    //avançar 1 casa à cima e à direita na matriz
+                    c1.setPeça(peçaSelecionada);
+
+                    // na classe da peça atualizar o seu local na matriz
+                    peçaSelecionada.setXY
+                            (peçaSelecionada.getPosX() + 1, peçaSelecionada.getPosY() - 1);
+
+                    //atualizar posição da peça
+                    peçaSelecionada.setPosicaoPeça
+                            (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].getPosicao());
+
+                    c.removePeça();
+                    minhaVez = false;
+
+                }
+
+            }
+            if (c2 != null) {// jogada para à esquerda
+
+                atualizar = c2.getPosicao();
+
+                if (x >= atualizar.left & x <= atualizar.right &
+                        y >= atualizar.top & y <= atualizar.bottom) {
+
+                    //avançar 1 casa à cima e à direita na matriz
+                    casa[peçaSelecionada.getPosX() - 1]
+                            [peçaSelecionada.getPosY() - 1].setPeça(peçaSelecionada);
+
+                    // na classe da peça atualizar o seu local na matriz
+                    peçaSelecionada.setXY
+                            (peçaSelecionada.getPosX() - 1, peçaSelecionada.getPosY() - 1);
+
+                    //atualizar posição da peça
+                    peçaSelecionada.setPosicaoPeça
+                            (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].getPosicao());
+
+                    c.removePeça();
+                    minhaVez = false;
+
+                }
+            }
+
+            peçaSelecionada = null;
+            esquerda = direita = null;
+            selecionar = false;
+            inteligenciaArtificial();
+            minhaVez = true;
+        }
+
+    }
+    }
+
+    // jogada do computador
+    private void inteligenciaArtificial(){
+
+    }
+
+
 }
