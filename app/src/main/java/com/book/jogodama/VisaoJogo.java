@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 
 import com.book.simplegameenginev1.SGImage;
 import com.book.simplegameenginev1.SGImageFactory;
@@ -61,17 +62,17 @@ public class VisaoJogo extends SGView {
         for(int i =0; i < 12; i++){
 
             Peça peça = new Peça();
-            peça.setImagemPeça(imageFactory.createImage(R.drawable.vermelha));
+            peça.setImagemPeça(imageFactory.createImage(R.drawable.pecavermelha));
             peça.setChaveDaPeça(i);
             peça.setJogador(1);
             peçasVermelhas.add(peça);
 
         }
-        // adicionar imagem das peças brancas
+        // adicionar imagem das peças azuis
         for(int i =0; i < 12; i++){
 
             Peça peça = new Peça();
-            peça.setImagemPeça(imageFactory.createImage(R.drawable.branca));
+            peça.setImagemPeça(imageFactory.createImage(R.drawable.pecaazul));
             peça.setChaveDaPeça(i);
             peça.setJogador(2);
             peçasBrancas.add(peça);
@@ -107,7 +108,7 @@ public class VisaoJogo extends SGView {
 
         //mTempImageSource = tamanho do tabuleiro => (0,0) até (486,440)
         //posicao do tabuleiro é iniciada em setup e fica no meio
-        mTempImageSource.set(0,0,larguraTabuleiro,alturaTabuleiro);
+        mTempImageSource.set(0,0,486,440);
         renderer.drawImage(tabuleiro, mTempImageSource,posicaoTabuleiro);
 
         // desenhar as peças em suas posições atuais
@@ -338,20 +339,46 @@ public class VisaoJogo extends SGView {
         } else {
             // casa atual da minha peça
             Casa c = casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()];
+            // casa À direita
             Casa c1 = null;
+            // casa à esquerda
             Casa c2 = null;
+
             // casa para movimentar à direita
             if (peçaSelecionada.getPosX() < 7 & peçaSelecionada.getPosY() > 0) {
 
-                c1 = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
+                if(casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1]
+                        .getPeça()!= null) {
 
+                    if(casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1]
+                            .getPeça().getJogador()!= 2){
+
+                    c1 = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
+
+                    }
+
+                }else{
+
+                    c1 = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
+                }
             }
 
             //casa para movimentar à esquerda
             if (peçaSelecionada.getPosX() > 0 & peçaSelecionada.getPosY() > 0) {
 
-                c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
+                // impedir passar por cima de uma peça própria
+                if(casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1]
+                        .getPeça() != null) {
 
+                    if(casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1]
+                            .getPeça().getJogador() !=2){
+
+                    c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
+                    }
+
+                }else{
+                    c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
+                }
 
             }
 
@@ -378,6 +405,14 @@ public class VisaoJogo extends SGView {
                     c.removePeça();
                     minhaVez = false;
 
+                    if(peçaSelecionada.getPosY() == 0){
+
+                        peçaSelecionada.setImagemPeça(imageFactory.createImage
+                                (R.drawable.pecaazulrainha));
+                        peçaSelecionada.setRainha(true);
+                    }
+
+
                 }
 
             }
@@ -403,22 +438,34 @@ public class VisaoJogo extends SGView {
                     c.removePeça();
                     minhaVez = false;
 
+                    //verificar se a peça se tornou rainha e atualizar a imagem
+                    if(peçaSelecionada.getPosY() == 0){
+
+                        peçaSelecionada.setImagemPeça(imageFactory.createImage
+                                (R.drawable.pecaazulrainha));
+                        peçaSelecionada.setRainha(true);
+                    }
+
                 }
             }
 
+            selecionar = false;
             peçaSelecionada = null;
             esquerda = direita = null;
-            selecionar = false;
+
             inteligenciaArtificial();
-            minhaVez = true;
+
         }
 
     }
     }
+    private void movimentacaoPecaNormal(){}
+    private void movimentacaoRainha(){}
 
     // jogada do computador
     private void inteligenciaArtificial(){
 
+        minhaVez = true;
     }
 
 
