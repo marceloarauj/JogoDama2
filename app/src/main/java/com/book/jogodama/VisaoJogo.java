@@ -497,18 +497,31 @@ public class VisaoJogo extends SGView implements Runnable {
             if(escolhidaX < 7 & escolhidaY < 7){
 
                     direita = casa[escolhidaX + 1][escolhidaY + 1];
-                        selecaoDePeca = false;
-                        casa[escolhidaX][escolhidaY].removePeça();
 
+                    if(direita.getPeça() != null){
+
+                    direita = null;
+                    
+                    }else{
+
+                        casa[escolhidaX][escolhidaY].removePeça();
+                        selecaoDePeca = false;
+                    }
             }
 
             if(escolhidaX > 0 & escolhidaY < 7){
 
 
                     esquerda = casa[escolhidaX - 1][escolhidaY + 1];
-                        casa[escolhidaX][escolhidaY].removePeça();
-                        selecaoDePeca = false;
 
+                       if(esquerda.getPeça() != null) {
+                           esquerda = null;
+
+                       }else{
+
+                           casa[escolhidaX][escolhidaY].removePeça();
+                           selecaoDePeca = false;
+                       }
             }
 
 
@@ -519,6 +532,7 @@ public class VisaoJogo extends SGView implements Runnable {
         // simular o pensamento do computador de forma mais devagar
 
         if(movimentar == 0){
+
             if(direita != null){
 
                 direita.setPeça(pecaEscolhida);
@@ -530,6 +544,9 @@ public class VisaoJogo extends SGView implements Runnable {
 
                     pecaEscolhida.setImagemPeça
                             (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                    pecaEscolhida.setRainha(true);
+
                 }
 
             }else{
@@ -543,6 +560,8 @@ public class VisaoJogo extends SGView implements Runnable {
 
                     pecaEscolhida.setImagemPeça
                             (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                    pecaEscolhida.setRainha(true);
                 }
             }
 
@@ -559,6 +578,9 @@ public class VisaoJogo extends SGView implements Runnable {
 
                     pecaEscolhida.setImagemPeça
                             (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                    pecaEscolhida.setRainha(true);
+
                 }
 
             }else{
@@ -572,6 +594,9 @@ public class VisaoJogo extends SGView implements Runnable {
 
                     pecaEscolhida.setImagemPeça
                             (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                    pecaEscolhida.setRainha(true);
+
                 }
             }
         }
