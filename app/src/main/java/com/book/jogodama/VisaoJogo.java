@@ -8,6 +8,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
+import android.provider.Telephony;
 
 import com.book.simplegameenginev1.SGImage;
 import com.book.simplegameenginev1.SGImageFactory;
@@ -15,14 +16,15 @@ import com.book.simplegameenginev1.SGRenderer;
 import com.book.simplegameenginev1.SGView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
-public class VisaoJogo extends SGView {
+public class VisaoJogo extends SGView implements Runnable {
 
     public VisaoJogo(Context context) {
         super(context);
     }
 
-    private ArrayList<Peça> peçasVermelhas = new ArrayList<>();
+    private ArrayList<Peça> peçasVermelhas = new ArrayList<>(); // oponente
     private ArrayList<Peça> peçasBrancas = new ArrayList<>();
     private Casa[][] casa = new Casa[8][8];
     private Peça peçaSelecionada = null;
@@ -57,7 +59,7 @@ public class VisaoJogo extends SGView {
 
         SGImageFactory imageFactory = getImageFactory();
         //adicionar imagem do tabuleiro
-        tabuleiro = imageFactory.createImage(R.drawable.tabuleiro);
+        tabuleiro = imageFactory.createImage(R.drawable.tabuleirov2);
         // adicionar imagem das peças vermelhas
         for(int i =0; i < 12; i++){
 
@@ -108,16 +110,17 @@ public class VisaoJogo extends SGView {
 
         //mTempImageSource = tamanho do tabuleiro => (0,0) até (486,440)
         //posicao do tabuleiro é iniciada em setup e fica no meio
-        mTempImageSource.set(0,0,486,440);
+        mTempImageSource.set(0,0,486,485);
         renderer.drawImage(tabuleiro, mTempImageSource,posicaoTabuleiro);
 
         // desenhar as peças em suas posições atuais
 
-        for(int i =0; i < peçasVermelhas.size();i++) {
+        for(int i =0; i < peçasBrancas.size();i++) {
             mTempImageSource.set(0, 0, 61, 62);
             renderer.drawImage(peçasVermelhas.get(i).getImagemPeça(), mTempImageSource, peçasVermelhas.get(i).getPosicaoPeça());
 
         }
+
         for(int i =0; i < peçasVermelhas.size();i++) {
             mTempImageSource.set(0, 0, 61, 62);
             renderer.drawImage(peçasBrancas.get(i).getImagemPeça(), mTempImageSource, peçasBrancas.get(i).getPosicaoPeça());
@@ -453,20 +456,141 @@ public class VisaoJogo extends SGView {
             peçaSelecionada = null;
             esquerda = direita = null;
 
-            inteligenciaArtificial();
+            if(minhaVez == false) {
 
+                Thread th = new Thread(this);
+                th.start();
+
+            }
         }
 
     }
     }
-    private void movimentacaoPecaNormal(){}
+
     private void movimentacaoRainha(){}
 
     // jogada do computador
     private void inteligenciaArtificial(){
 
+        // algoritmo: 1- Escolher uma peça aleatória 2- verificar possibilidade 3- movimentar
+
+        boolean fimDaJogadaComputador = false;
+        boolean selecaoDePeca = true;
+        Peça pecaEscolhida = null;
+
+        int escolhidaX = 0;
+        int escolhidaY=0;
+
+        Casa esquerda = null;
+        Casa direita = null;
+
+        Random rand = new Random();
+        int movimentar;
+
+        while(selecaoDePeca){
+            // escolher uma peça aleatoria
+            pecaEscolhida = peçasVermelhas.get((rand.nextInt(peçasVermelhas.size())));
+            // pegar a posicao X e Y dessa peça
+            escolhidaX = pecaEscolhida.getPosX();
+            escolhidaY = pecaEscolhida.getPosY();
+
+            if(escolhidaX < 7 & escolhidaY < 7){
+
+                    direita = casa[escolhidaX + 1][escolhidaY + 1];
+                        selecaoDePeca = false;
+                        casa[escolhidaX][escolhidaY].removePeça();
+
+            }
+
+            if(escolhidaX > 0 & escolhidaY < 7){
+
+
+                    esquerda = casa[escolhidaX - 1][escolhidaY + 1];
+                        casa[escolhidaX][escolhidaY].removePeça();
+                        selecaoDePeca = false;
+
+            }
+
+
+        }
+        // movimentar peça para um local aleatório, se o random for = 0 direita, se for =1 esquerda
+        // se cair 0 e não puder movimentar para a direita, movimentar para a esquerda
+        movimentar = rand.nextInt(2);
+        // simular o pensamento do computador de forma mais devagar
+
+        if(movimentar == 0){
+            if(direita != null){
+
+                direita.setPeça(pecaEscolhida);
+                pecaEscolhida.setXY(escolhidaX + 1,escolhidaY + 1);
+                pecaEscolhida.setPosicaoPeça(direita.getPosicao());
+
+                //peça se do oponente se torna rainha
+                if(pecaEscolhida.getPosY() == 7){
+
+                    pecaEscolhida.setImagemPeça
+                            (getImageFactory().createImage(R.drawable.pecavermelharainha));
+                }
+
+            }else{
+
+                esquerda.setPeça(pecaEscolhida);
+                pecaEscolhida.setXY(escolhidaX - 1,escolhidaY+ 1);
+                pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
+
+                //peça se do oponente se torna rainha
+                if(pecaEscolhida.getPosY() == 7){
+
+                    pecaEscolhida.setImagemPeça
+                            (getImageFactory().createImage(R.drawable.pecavermelharainha));
+                }
+            }
+
+        }else if(movimentar == 1){
+
+            if(esquerda != null){
+
+                esquerda.setPeça(pecaEscolhida);
+                pecaEscolhida.setXY(escolhidaX - 1,escolhidaY+ 1);
+                pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
+
+                //peça se do oponente se torna rainha
+                if(pecaEscolhida.getPosY() == 7){
+
+                    pecaEscolhida.setImagemPeça
+                            (getImageFactory().createImage(R.drawable.pecavermelharainha));
+                }
+
+            }else{
+
+                direita.setPeça(pecaEscolhida);
+                pecaEscolhida.setXY(escolhidaX + 1,escolhidaY + 1);
+                pecaEscolhida.setPosicaoPeça(direita.getPosicao());
+
+                //peça se do oponente se torna rainha
+                if(pecaEscolhida.getPosY() == 7){
+
+                    pecaEscolhida.setImagemPeça
+                            (getImageFactory().createImage(R.drawable.pecavermelharainha));
+                }
+            }
+        }
+
+
         minhaVez = true;
     }
 
 
+    @Override
+    public void run() {
+
+
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        inteligenciaArtificial();
+    }
 }
