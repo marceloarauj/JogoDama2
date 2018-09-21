@@ -14,8 +14,11 @@ public class Peça {
     private int posX; //posição da peça na matriz X
     private int posY; // posição da peça na matriz Y;
     private int jogador;
+    private boolean esquerda=false; // se é possivel pegar peça à esquerda
+    private boolean direita = false;// se é possivel pegar peça à direita
 
-
+    public boolean getDireita(){return direita;}
+    public boolean getEsquerda(){return esquerda;}
     public SGImage getImagemPeça(){return imagemPeça;}
     public boolean isRainha(){return rainha;}
     public int getChaveDaPeça(){return chaveDaPeça;}
@@ -30,6 +33,8 @@ public class Peça {
     public void setChaveDaPeça(int chave){chaveDaPeça = chave;}
 
     public void setPosicaoPeça(RectF posicao){posicaoPeça = posicao;}
+    public void setDireita(boolean b){direita = b;}
+    public void setEsquerda(boolean b){esquerda = b;}
 
     //posição da peça na matriz
 
