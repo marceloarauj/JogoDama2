@@ -501,6 +501,7 @@ public class VisaoJogo extends SGView implements Runnable {
 
                     }*/
                  c1= null;
+                 //
                 } else {
 
                     c1 = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
