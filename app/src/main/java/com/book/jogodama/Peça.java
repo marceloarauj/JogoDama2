@@ -17,6 +17,10 @@ public class Peça {
     private boolean esquerda=false; // se é possivel pegar peça à esquerda
     private boolean direita = false;// se é possivel pegar peça à direita
 
+
+
+
+
     public boolean getDireita(){return direita;}
     public boolean getEsquerda(){return esquerda;}
     public SGImage getImagemPeça(){return imagemPeça;}

@@ -26,10 +26,11 @@ public class VisaoJogo extends SGView implements Runnable {
 
     private ArrayList<Peça> peçasVermelhas = new ArrayList<>(); // oponente
     private ArrayList<Peça> peçasBrancas = new ArrayList<>();
-    ArrayList<Peça> peçasPossiveis = new ArrayList<>();
+    ArrayList<Peça> peçasPossiveis = new ArrayList<>(); // possíveis peças para movimentação
 
     private Casa[][] casa = new Casa[8][8];
     private Peça peçaSelecionada = null;
+    private Peça peçaDeletar = null;
 
     private SGImage tabuleiro;
 
@@ -116,22 +117,34 @@ public class VisaoJogo extends SGView implements Runnable {
         renderer.drawImage(tabuleiro, mTempImageSource,posicaoTabuleiro);
 
         // desenhar as peças em suas posições atuais
+        if(peçaDeletar != null){
 
-        for(int i =0; i < peçasBrancas.size();i++) {
+            peçasBrancas.remove(peçaDeletar);
+            peçasVermelhas.remove(peçaDeletar);
+            peçaDeletar = null;
 
-            mTempImageSource.set(0, 0, 61, 62);
-            renderer.drawImage(peçasVermelhas.get(i).getImagemPeça(),
-                    mTempImageSource, peçasVermelhas.get(i).getPosicaoPeça());
 
         }
 
         for(int i =0; i < peçasVermelhas.size();i++) {
 
-            mTempImageSource.set(0, 0, 61, 62);
-            renderer.drawImage(peçasBrancas.get(i).getImagemPeça(), mTempImageSource,
-                    peçasBrancas.get(i).getPosicaoPeça());
+
+                mTempImageSource.set(0, 0, 61, 62);
+                renderer.drawImage(peçasVermelhas.get(i).getImagemPeça(),
+                        mTempImageSource, peçasVermelhas.get(i).getPosicaoPeça());
+
 
         }
+
+        for(int i =0; i < peçasBrancas.size();i++) {
+
+                mTempImageSource.set(0, 0, 61, 62);
+                renderer.drawImage(peçasBrancas.get(i).getImagemPeça(), mTempImageSource,
+                        peçasBrancas.get(i).getPosicaoPeça());
+
+
+        }
+
         //desenhar quadros amarelos nos possíveis locais de movimentação
         if(esquerda != null){
             renderer.drawRect(esquerda.getPosicao(),Color.YELLOW);
@@ -172,6 +185,7 @@ public class VisaoJogo extends SGView implements Runnable {
         }
 
         //posição das peças vermelhas na matriz      // peça armazena a sua posição
+        casa[0][0].setPeça(peçasVermelhas.get(0));   peçasVermelhas.get(0).setXY(0,0);
         casa[2][0].setPeça(peçasVermelhas.get(1));   peçasVermelhas.get(1).setXY(2,0);
         casa[4][0].setPeça(peçasVermelhas.get(2));   peçasVermelhas.get(2).setXY(4,0);
         casa[6][0].setPeça(peçasVermelhas.get(3));   peçasVermelhas.get(3).setXY(6,0);
@@ -413,15 +427,28 @@ public class VisaoJogo extends SGView implements Runnable {
 
                           if (peçaSelecionada.getPosX() < 7 & peçaSelecionada.getPosY() > 0) {
 
-                              direita = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
+
+                              if(casa[peçaSelecionada.getPosX()+1]
+                                      [peçaSelecionada.getPosY()-1].getPeça()== null){
+
+
+                              direita = casa[peçaSelecionada.getPosX() + 1]
+                                      [peçaSelecionada.getPosY() - 1];
+
+                              }
 
                           }
 
                           //casa para movimentar à esquerda
                           if (peçaSelecionada.getPosX() > 0 & peçaSelecionada.getPosY() > 0) {
 
-                              esquerda = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
+                              if(casa[peçaSelecionada.getPosX()-1]
+                                      [peçaSelecionada.getPosY()-1].getPeça()== null) {
 
+
+                                  esquerda = casa[peçaSelecionada.getPosX() - 1]
+                                          [peçaSelecionada.getPosY() - 1];
+                              }
 
                           }
 
@@ -467,13 +494,13 @@ public class VisaoJogo extends SGView implements Runnable {
                 if (casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1]
                         .getPeça() != null) {
 
-                    if (casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1]
+                    /*if (casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1]
                             .getPeça().getJogador() != 2) {
 
                         c1 = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
 
-                    }
-
+                    }*/
+                 c1= null;
                 } else {
 
                     c1 = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
@@ -487,12 +514,12 @@ public class VisaoJogo extends SGView implements Runnable {
                 if (casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1]
                         .getPeça() != null) {
 
-                    if (casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1]
+                    /*if (casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1]
                             .getPeça().getJogador() != 2) {
 
                         c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
-                    }
-
+                    }*/
+                       c2 = null;
                 } else {
                     c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
                 }
@@ -521,9 +548,14 @@ public class VisaoJogo extends SGView implements Runnable {
 
                         // deletar peça do array inimigo
 
+                        peçaDeletar = casa[peçaSelecionada.getPosX()-1][peçaSelecionada.getPosY()+1]
+                                .getPeça();
+
+                        casa[peçaSelecionada.getPosX()-1][peçaSelecionada.getPosY()+1].removePeça();
 
                         peçaSelecionada.setPosicaoPeça
-                                (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].getPosicao());
+                                (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()]
+                                        .getPosicao());
 
 
                     }else {
@@ -570,7 +602,10 @@ public class VisaoJogo extends SGView implements Runnable {
                                 (peçaSelecionada.getPosX() - 2, peçaSelecionada.getPosY() - 2);
 
                         // deletar peça do array inimigo
+                        peçaDeletar = casa[peçaSelecionada.getPosX()+1][peçaSelecionada.getPosY()+1]
+                                .getPeça();
 
+                        casa[peçaSelecionada.getPosX()+1][peçaSelecionada.getPosY()+1].removePeça();
 
                         //atualizar posição da peça
                         peçaSelecionada.setPosicaoPeça
@@ -650,37 +685,39 @@ public class VisaoJogo extends SGView implements Runnable {
             escolhidaX = pecaEscolhida.getPosX();
             escolhidaY = pecaEscolhida.getPosY();
 
-            if(escolhidaX < 7 & escolhidaY < 7){
+
+
+                if (escolhidaX < 7 & escolhidaY < 7) {
 
                     direita = casa[escolhidaX + 1][escolhidaY + 1];
 
-                    if(direita.getPeça() != null){
+                    if (direita.getPeça() != null) {
 
-                    direita = null;
+                        direita = null;
 
-                    }else{
+                    } else {
 
                         casa[escolhidaX][escolhidaY].removePeça();
                         selecaoDePeca = false;
                     }
-            }
+                }
 
-            if(escolhidaX > 0 & escolhidaY < 7){
+                if (escolhidaX > 0 & escolhidaY < 7) {
 
 
                     esquerda = casa[escolhidaX - 1][escolhidaY + 1];
 
-                       if(esquerda.getPeça() != null) {
-                           esquerda = null;
+                    if (esquerda.getPeça() != null) {
+                        esquerda = null;
 
-                       }else{
+                    } else {
 
-                           casa[escolhidaX][escolhidaY].removePeça();
-                           selecaoDePeca = false;
-                       }
+                        casa[escolhidaX][escolhidaY].removePeça();
+                        selecaoDePeca = false;
+                    }
+
+
             }
-
-
         }
         // movimentar peça para um local aleatório, se o random for = 0 direita, se for =1 esquerda
         // se cair 0 e não puder movimentar para a direita, movimentar para a esquerda
@@ -777,45 +814,7 @@ public class VisaoJogo extends SGView implements Runnable {
 
     public boolean movimentacaoRainha(){return true;}
 
-    public boolean jogadorComerPeça(ArrayList<Peça> possiveisMov,float x,float y){
 
-        RectF peçaAtual = null;
-        boolean boleano = false;
-
-        for (int i = 0; i < possiveisMov.size(); i++) {
-
-            peçaAtual = possiveisMov.get(i).getPosicaoPeça();
-
-
-            if (x >= peçaAtual.left & x <= peçaAtual.right &
-                    y >= peçaAtual.top & y <= peçaAtual.bottom) {
-
-                this.peçaSelecionada = possiveisMov.get(i);
-                selecionar = true;
-
-                if (peçaSelecionada.getPosX() < 6 & peçaSelecionada.getPosY() > 1) {
-
-                    direita = casa[peçaSelecionada.getPosX() + 2][peçaSelecionada.getPosY() - 2];
-
-                    boleano = true;
-                }
-
-                //casa para movimentar à esquerda
-                if (peçaSelecionada.getPosX() > 1 & peçaSelecionada.getPosY() > 1) {
-
-                    esquerda = casa[peçaSelecionada.getPosX() - 2][peçaSelecionada.getPosY() - 2];
-
-                    boleano = true;
-                }
-
-                return boleano;
-            }
-
-        }
-
-        return false;
-
-    }
 
     public boolean inimigoComerPeça(){return true;}
 

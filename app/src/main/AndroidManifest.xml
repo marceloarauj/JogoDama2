@@ -16,6 +16,7 @@
             android:name ="com.book.jogodama.AtividadeJogo"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
+
             >
 
             <intent-filter>
