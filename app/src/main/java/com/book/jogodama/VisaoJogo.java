@@ -515,11 +515,6 @@ public class VisaoJogo extends SGView implements Runnable {
                 if (casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1]
                         .getPeça() != null) {
 
-                    /*if (casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1]
-                            .getPeça().getJogador() != 2) {
-
-                        c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
-                    }*/
                        c2 = null;
                 } else {
                     c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
@@ -641,6 +636,8 @@ public class VisaoJogo extends SGView implements Runnable {
             alesta.create();
             alesta.show();*/ // teste de variáveis
 
+            c.removePeça();
+
             selecionar = false;
             peçaSelecionada = null;
             esquerda = direita = null;
@@ -662,7 +659,7 @@ public class VisaoJogo extends SGView implements Runnable {
     }
 
     // jogada do computador
-    private void inteligenciaArtificial(){
+    private void inteligenciaArtificial() {
 
         // algoritmo: 1- Escolher uma peça aleatória 2- verificar possibilidade 3- movimentar
 
@@ -671,21 +668,81 @@ public class VisaoJogo extends SGView implements Runnable {
         Peça pecaEscolhida = null;
 
         int escolhidaX = 0;
-        int escolhidaY=0;
+        int escolhidaY = 0;
 
         Casa esquerda = null;
         Casa direita = null;
 
         Random rand = new Random();
         int movimentar;
+        ArrayList<Peça> comerPeca = new ArrayList<>();
 
-        while(selecaoDePeca){
-            // escolher uma peça aleatoria
-            pecaEscolhida = peçasVermelhas.get((rand.nextInt(peçasVermelhas.size())));
-            // pegar a posicao X e Y dessa peça
-            escolhidaX = pecaEscolhida.getPosX();
-            escolhidaY = pecaEscolhida.getPosY();
+        // verificar se o oponente pode pegar alguma peça
+        for(int i=0; i < peçasVermelhas.size();i++){
 
+            Peça p = peçasVermelhas.get(i);
+
+            // comer peça à esquerda
+            if(p.getPosX() > 1 & p.getPosY()< 6){ //verificar limite do tabuleiro
+                if(casa[p.getPosX()-1][p.getPosY()+1].getPeça() != null){ // verificar se existe peça
+                    if(casa[p.getPosX()-1][p.getPosY()+1].getPeça().getJogador()==2){// verificar se é do oponente
+                        if(casa[p.getPosX()-2][p.getPosY()+2].getPeça() == null){// verificar se existe uma peça após a mesma
+
+                            p.setEsquerda(true);
+                            comerPeca.add(p);
+                        }
+                    }
+                }
+            }
+
+            //comer peça à direita
+            if(p.getPosX()< 6 & p.getPosY() < 6){
+
+                if(casa[p.getPosX()+1][p.getPosY()+1].getPeça() != null){ // verificar se existe peça
+                    if(casa[p.getPosX()+1][p.getPosY()+1].getPeça().getJogador()==2){// verificar se é do oponente
+                        if(casa[p.getPosX()+2][p.getPosY()+2].getPeça() == null){// verificar se existe uma peça após a mesma
+
+                            p.setDireita(true);
+                            comerPeca.add(p);
+                        }
+                    }
+                }
+            }
+        }
+
+        // comer peça se for possível
+
+        if(!comerPeca.isEmpty()){
+
+            Peça p = comerPeca.get(rand.nextInt(comerPeca.size()));
+
+            if(p.getEsquerda()){ // comer peça à esquerda
+
+                casa[p.getPosX()][p.getPosY()].removePeça();
+                p.setXY(p.getPosX()-2,p.getPosY()+2);
+                casa[p.getPosX()][p.getPosY()].setPeça(p);
+                peçasBrancas.remove(casa[p.getPosX()+1][p.getPosY()-1].getPeça());
+                casa[p.getPosX()+1][p.getPosY()-1].removePeça();
+                p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
+
+            }else if(p.getDireita()){ // comer peça à direita
+
+                casa[p.getPosX()][p.getPosY()].removePeça();
+                p.setXY(p.getPosX()+2,p.getPosY()+2);
+                casa[p.getPosX()][p.getPosY()].setPeça(p);
+                peçasBrancas.remove(casa[p.getPosX()-1][p.getPosY()-1].getPeça());
+                casa[p.getPosX()-1][p.getPosY()-1].removePeça();
+                p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
+            }
+
+        }else {
+            // se não, movimentar peça normalmente
+            while (selecaoDePeca) {
+                // escolher uma peça aleatoria
+                pecaEscolhida = peçasVermelhas.get((rand.nextInt(peçasVermelhas.size())));
+                // pegar a posicao X e Y dessa peça
+                escolhidaX = pecaEscolhida.getPosX();
+                escolhidaY = pecaEscolhida.getPosY();
 
 
                 if (escolhidaX < 7 & escolhidaY < 7) {
@@ -718,81 +775,87 @@ public class VisaoJogo extends SGView implements Runnable {
                     }
 
 
+                }
+            }
+            // movimentar peça para um local aleatório, se o random for = 0 direita, se for =1 esquerda
+            // se cair 0 e não puder movimentar para a direita, movimentar para a esquerda
+            movimentar = rand.nextInt(2);
+            // simular o pensamento do computador de forma mais devagar
+
+            if (movimentar == 0) {
+
+                if (direita != null) {
+
+                    direita.setPeça(pecaEscolhida);
+                    pecaEscolhida.setXY(escolhidaX + 1, escolhidaY + 1);
+                    pecaEscolhida.setPosicaoPeça(direita.getPosicao());
+
+                    //peça se do oponente se torna rainha
+                    if (pecaEscolhida.getPosY() == 7) {
+
+                        pecaEscolhida.setImagemPeça
+                                (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                        pecaEscolhida.setRainha(true);
+
+                    }
+
+                } else {
+
+                    esquerda.setPeça(pecaEscolhida);
+                    pecaEscolhida.setXY(escolhidaX - 1, escolhidaY + 1);
+                    pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
+
+                    //peça se do oponente se torna rainha
+                    if (pecaEscolhida.getPosY() == 7) {
+
+                        pecaEscolhida.setImagemPeça
+                                (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                        pecaEscolhida.setRainha(true);
+                    }
+                }
+
+            } else if (movimentar == 1) {
+
+                if (esquerda != null) {
+
+                    esquerda.setPeça(pecaEscolhida);
+                    pecaEscolhida.setXY(escolhidaX - 1, escolhidaY + 1);
+                    pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
+
+                    //peça se do oponente se torna rainha
+                    if (pecaEscolhida.getPosY() == 7) {
+
+                        pecaEscolhida.setImagemPeça
+                                (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                        pecaEscolhida.setRainha(true);
+
+                    }
+
+                } else {
+
+                    direita.setPeça(pecaEscolhida);
+                    pecaEscolhida.setXY(escolhidaX + 1, escolhidaY + 1);
+                    pecaEscolhida.setPosicaoPeça(direita.getPosicao());
+
+                    //peça se do oponente se torna rainha
+                    if (pecaEscolhida.getPosY() == 7) {
+
+                        pecaEscolhida.setImagemPeça
+                                (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                        pecaEscolhida.setRainha(true);
+
+                    }
+                }
             }
         }
-        // movimentar peça para um local aleatório, se o random for = 0 direita, se for =1 esquerda
-        // se cair 0 e não puder movimentar para a direita, movimentar para a esquerda
-        movimentar = rand.nextInt(2);
-        // simular o pensamento do computador de forma mais devagar
 
-        if(movimentar == 0){
-
-            if(direita != null){
-
-                direita.setPeça(pecaEscolhida);
-                pecaEscolhida.setXY(escolhidaX + 1,escolhidaY + 1);
-                pecaEscolhida.setPosicaoPeça(direita.getPosicao());
-
-                //peça se do oponente se torna rainha
-                if(pecaEscolhida.getPosY() == 7){
-
-                    pecaEscolhida.setImagemPeça
-                            (getImageFactory().createImage(R.drawable.pecavermelharainha));
-
-                    pecaEscolhida.setRainha(true);
-
-                }
-
-            }else{
-
-                esquerda.setPeça(pecaEscolhida);
-                pecaEscolhida.setXY(escolhidaX - 1,escolhidaY+ 1);
-                pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
-
-                //peça se do oponente se torna rainha
-                if(pecaEscolhida.getPosY() == 7){
-
-                    pecaEscolhida.setImagemPeça
-                            (getImageFactory().createImage(R.drawable.pecavermelharainha));
-
-                    pecaEscolhida.setRainha(true);
-                }
-            }
-
-        }else if(movimentar == 1){
-
-            if(esquerda != null){
-
-                esquerda.setPeça(pecaEscolhida);
-                pecaEscolhida.setXY(escolhidaX - 1,escolhidaY+ 1);
-                pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
-
-                //peça se do oponente se torna rainha
-                if(pecaEscolhida.getPosY() == 7){
-
-                    pecaEscolhida.setImagemPeça
-                            (getImageFactory().createImage(R.drawable.pecavermelharainha));
-
-                    pecaEscolhida.setRainha(true);
-
-                }
-
-            }else{
-
-                direita.setPeça(pecaEscolhida);
-                pecaEscolhida.setXY(escolhidaX + 1,escolhidaY + 1);
-                pecaEscolhida.setPosicaoPeça(direita.getPosicao());
-
-                //peça se do oponente se torna rainha
-                if(pecaEscolhida.getPosY() == 7){
-
-                    pecaEscolhida.setImagemPeça
-                            (getImageFactory().createImage(R.drawable.pecavermelharainha));
-
-                    pecaEscolhida.setRainha(true);
-
-                }
-            }
+        for(Peça p: peçasVermelhas){
+            p.setEsquerda(false);
+            p.setDireita(false);
         }
 
         peçasPossiveis.clear();
