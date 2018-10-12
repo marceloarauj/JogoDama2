@@ -642,7 +642,7 @@ public class VisaoJogo extends SGView implements Runnable {
             }
 
 
-            c.removePeça();
+            //c.removePeça();
 
             for (Peça p : peçasPossiveis) {
                 p.setEsquerda(false);
@@ -754,6 +754,40 @@ public class VisaoJogo extends SGView implements Runnable {
                 peçasBrancas.remove(casa[p.getPosX()-1][p.getPosY()-1].getPeça());
                 casa[p.getPosX()-1][p.getPosY()-1].removePeça();
                 p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
+            }
+
+            while(this.comerPeçaNovamenteInimigo(p)){
+
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if(p.getEsquerda()){ // comer peça à esquerda
+
+                    casa[p.getPosX()][p.getPosY()].removePeça();
+                    p.setXY(p.getPosX()-2,p.getPosY()+2);
+                    casa[p.getPosX()][p.getPosY()].setPeça(p);
+                    peçasBrancas.remove(casa[p.getPosX()+1][p.getPosY()-1].getPeça());
+                    casa[p.getPosX()+1][p.getPosY()-1].removePeça();
+                    p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
+
+                }else if(p.getDireita()){ // comer peça à direita
+
+                    casa[p.getPosX()][p.getPosY()].removePeça();
+                    p.setXY(p.getPosX()+2,p.getPosY()+2);
+                    casa[p.getPosX()][p.getPosY()].setPeça(p);
+                    peçasBrancas.remove(casa[p.getPosX()-1][p.getPosY()-1].getPeça());
+                    casa[p.getPosX()-1][p.getPosY()-1].removePeça();
+                    p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
+                }
+            }
+
+            if(p.getPosY() == 7){
+
+                p.setRainha(true);
+                p.setImagemPeça(this.getImageFactory().createImage(R.drawable.pecavermelharainha));
             }
 
         }else {
@@ -950,6 +984,61 @@ public class VisaoJogo extends SGView implements Runnable {
               minhaVez = true;
 
               return true;
+        }
+
+        return false;
+    }
+
+    public boolean comerPeçaNovamenteInimigo(Peça peça){
+
+        for(Peça p: peçasVermelhas){
+            p.setEsquerda(false);
+            p.setDireita(false);
+        }
+
+        boolean dir = false;
+        boolean esquerd= false;
+        //comer novamente uma peça à direita
+        if(peça.getPosX() < 6 & peça.getPosY() < 6){
+
+            if(casa[peça.getPosX()+1][peça.getPosY()+1].getPeça()!=null){
+
+                if(casa[peça.getPosX()+1][peça.getPosY()+1].getPeça().
+                        getJogador()==2){
+
+                    if(casa[peça.getPosX()+2][peça.getPosY()+2].
+                            getPeça()==null){
+
+                        dir = true;
+                    }
+
+
+                }
+            }
+        }
+        if(peça.getPosX() > 1 & peça.getPosY() < 6){
+
+            if(casa[peça.getPosX()-1][peça.getPosY()+1].getPeça()!=null){
+
+                if(casa[peça.getPosX()-1][peça.getPosY()+1].getPeça().
+                        getJogador()==2){
+
+                    if(casa[peça.getPosX()-2][peça.getPosY()+2].
+                            getPeça()==null){
+
+                        esquerd = true;
+                    }
+
+
+                }
+            }
+        }
+        if(esquerd == true || dir == true){
+
+            peça.setDireita(dir);
+            peça.setEsquerda(esquerd);
+
+            return true;
         }
 
         return false;
