@@ -27,6 +27,7 @@ public class VisaoJogo extends SGView implements Runnable {
     private ArrayList<Peça> peçasVermelhas = new ArrayList<>(); // oponente
     private ArrayList<Peça> peçasBrancas = new ArrayList<>();
     ArrayList<Peça> peçasPossiveis = new ArrayList<>(); // possíveis peças para movimentação
+    ArrayList<Casa> lugaresPossiveisRainha = new ArrayList<>();
 
     private Casa[][] casa = new Casa[8][8];
     private Peça peçaSelecionada = null;
@@ -151,16 +152,22 @@ public class VisaoJogo extends SGView implements Runnable {
         if(esquerda != null){
             renderer.drawRect(esquerda.getPosicao(),Color.YELLOW);
 
-
-
-
         }
+
         if(direita != null){
 
             renderer.drawRect(direita.getPosicao(), Color.YELLOW);
 
-
         }
+
+        if(!this.lugaresPossiveisRainha.isEmpty()){
+
+           for(Casa c: lugaresPossiveisRainha){
+
+               renderer.drawRect(c.getPosicao(),Color.YELLOW);
+           }
+        }
+
         //finalizar desenho
         renderer.endDrawing();
     }
@@ -187,11 +194,15 @@ public class VisaoJogo extends SGView implements Runnable {
 
                 casa[i][j].setPosicao(posicaoCasa);
 
+                casa[i][j].setX(i);
+                casa[i][j].setY(j);
+
                 y = y + 2;
 
             }
             x = x + 2;
         }
+
 
         //posição das peças vermelhas na matriz      // peça armazena a sua posição
         casa[0][0].setPeça(peçasVermelhas.get(0));   peçasVermelhas.get(0).setXY(0,0);
@@ -401,18 +412,24 @@ public class VisaoJogo extends SGView implements Runnable {
                           this.peçaSelecionada = peçasPossiveis.get(i);
                           selecionar = true;
 
-                          if (peçaSelecionada.getDireita()) {
+                          if(peçaSelecionada.isRainha()){
 
-                              direita = casa[peçaSelecionada.getPosX() + 2][peçaSelecionada.getPosY() - 2];
+                              this.movimentacaoRainha();
+                          }else {
 
-                          }
+                              if (peçaSelecionada.getDireita()) {
 
-                          //casa para movimentar à esquerda
-                          if (peçaSelecionada.getEsquerda()) {
+                                  direita = casa[peçaSelecionada.getPosX() + 2][peçaSelecionada.getPosY() - 2];
 
-                              esquerda = casa[peçaSelecionada.getPosX() - 2][peçaSelecionada.getPosY() - 2];
+                              }
+
+                              //casa para movimentar à esquerda
+                              if (peçaSelecionada.getEsquerda()) {
+
+                                  esquerda = casa[peçaSelecionada.getPosX() - 2][peçaSelecionada.getPosY() - 2];
 
 
+                              }
                           }
 
                           break;
@@ -432,252 +449,268 @@ public class VisaoJogo extends SGView implements Runnable {
                           if (x >= peçaAtual.left & x <= peçaAtual.right &
                                   y >= peçaAtual.top & y <= peçaAtual.bottom) {
 
-                          this.peçaSelecionada = peçasBrancas.get(i);
-                          selecionar = true;
 
-                          if (peçaSelecionada.getPosX() < 7 & peçaSelecionada.getPosY() > 0) {
+                              this.peçaSelecionada = peçasBrancas.get(i);
+                              selecionar = true;
+
+                              if (peçaSelecionada.isRainha()) {
+
+                                  this.movimentacaoRainha();
+                              } else {
+
+                                  if (peçaSelecionada.getPosX() < 7 & peçaSelecionada.getPosY() > 0) {
 
 
-                              if(casa[peçaSelecionada.getPosX()+1]
-                                      [peçaSelecionada.getPosY()-1].getPeça()== null){
+                                      if (casa[peçaSelecionada.getPosX() + 1]
+                                              [peçaSelecionada.getPosY() - 1].getPeça() == null) {
 
 
-                              direita = casa[peçaSelecionada.getPosX() + 1]
-                                      [peçaSelecionada.getPosY() - 1];
+                                          direita = casa[peçaSelecionada.getPosX() + 1]
+                                                  [peçaSelecionada.getPosY() - 1];
+
+                                      }
+
+                                  }
+
+                                  //casa para movimentar à esquerda
+                                  if (peçaSelecionada.getPosX() > 0 & peçaSelecionada.getPosY() > 0) {
+
+                                      if (casa[peçaSelecionada.getPosX() - 1]
+                                              [peçaSelecionada.getPosY() - 1].getPeça() == null) {
+
+
+                                          esquerda = casa[peçaSelecionada.getPosX() - 1]
+                                                  [peçaSelecionada.getPosY() - 1];
+                                      }
+
+                                  }
+
 
                               }
-
+                              break;
                           }
-
-                          //casa para movimentar à esquerda
-                          if (peçaSelecionada.getPosX() > 0 & peçaSelecionada.getPosY() > 0) {
-
-                              if(casa[peçaSelecionada.getPosX()-1]
-                                      [peçaSelecionada.getPosY()-1].getPeça()== null) {
-
-
-                                  esquerda = casa[peçaSelecionada.getPosX() - 1]
-                                          [peçaSelecionada.getPosY() - 1];
-                              }
-
-                          }
-
-                          break;
-                      }
 
                       minhaVez = true;
                   }
               }
 
         } else {
-            // casa atual da minha peça
-            Casa c = casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()];
-            // casa À direita
-            Casa c1 = null;
-            // casa à esquerda
-            Casa c2 = null;
 
-            if(jogarNovamente){
-                peçasPossiveis.add(peçaSelecionada);
-                comerPeca = true;
-            }else
+           /* if (peçaSelecionada.isRainha()) {
 
-            if (!peçasPossiveis.isEmpty()) {
+                this.movimentacaoRainha(x, y);
+
+            } else {*/
+                // casa atual da minha peça
+                Casa c = casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()];
+                // casa À direita
+                Casa c1 = null;
+                // casa à esquerda
+                Casa c2 = null;
+
+                if (jogarNovamente) {
+
+                    peçasPossiveis.add(peçaSelecionada);
+
+                    comerPeca = true;
+
+                } else if (!peçasPossiveis.isEmpty()) {
 
 
-                comerPeca = true;
-            }
-            // se for possível comer peça
-            if (comerPeca) {
-
-                if (peçaSelecionada.getDireita() == true) {
-
-                    c1 = casa[peçaSelecionada.getPosX() + 2][peçaSelecionada.getPosY() - 2];
-                } else {
-                    c1 = null;
+                    comerPeca = true;
                 }
-                if (peçaSelecionada.getEsquerda() == true) {
+                // se for possível comer peça
+                if (comerPeca) {
 
-                    c2 = casa[peçaSelecionada.getPosX() - 2][peçaSelecionada.getPosY() - 2];
-                } else {
-                    c2 = null;
-                }
-            } else {
+                    if (peçaSelecionada.getDireita() == true) {
 
-                // casa para movimentar à direita
-                if (peçaSelecionada.getPosX() < 7 & peçaSelecionada.getPosY() > 0) {
-
-                    if (casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1]
-                            .getPeça() != null) {
-
+                        c1 = casa[peçaSelecionada.getPosX() + 2][peçaSelecionada.getPosY() - 2];
+                    } else {
                         c1 = null;
-
-                    } else {
-
-                        c1 = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
                     }
-                }
+                    if (peçaSelecionada.getEsquerda() == true) {
 
-                //casa para movimentar à esquerda
-                if (peçaSelecionada.getPosX() > 0 & peçaSelecionada.getPosY() > 0) {
-
-                    // impedir passar por cima de uma peça própria
-                    if (casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1]
-                            .getPeça() != null) {
-
+                        c2 = casa[peçaSelecionada.getPosX() - 2][peçaSelecionada.getPosY() - 2];
+                    } else {
                         c2 = null;
-                    } else {
-                        c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
+                    }
+                } else {
+
+                    // casa para movimentar à direita
+                    if (peçaSelecionada.getPosX() < 7 & peçaSelecionada.getPosY() > 0) {
+
+                        if (casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1]
+                                .getPeça() != null) {
+
+                            c1 = null;
+
+                        } else {
+
+                            c1 = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() - 1];
+                        }
+                    }
+
+                    //casa para movimentar à esquerda
+                    if (peçaSelecionada.getPosX() > 0 & peçaSelecionada.getPosY() > 0) {
+
+                        // impedir passar por cima de uma peça própria
+                        if (casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1]
+                                .getPeça() != null) {
+
+                            c2 = null;
+                        } else {
+                            c2 = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() - 1];
+                        }
+
+                    }
+                }
+                RectF atualizar;
+
+                if (c1 != null) { // jogada para à direita
+
+                    atualizar = c1.getPosicao();
+
+                    if (x >= atualizar.left & x <= atualizar.right &
+                            y >= atualizar.top & y <= atualizar.bottom) {
+
+                        //avançar 1 casa à cima e à direita na matriz
+                        c1.setPeça(peçaSelecionada);
+
+                        // na classe da peça atualizar o seu local na matriz
+
+                        // se foi possivel comer peça entao
+                        if (peçasPossiveis.isEmpty() == false) {
+
+                            peçaSelecionada.setXY
+                                    (peçaSelecionada.getPosX() + 2, peçaSelecionada.getPosY() - 2);
+
+                            // deletar peça do array inimigo
+
+                            peçaDeletar = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() + 1]
+                                    .getPeça();
+
+                            casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() + 1].removePeça();
+
+                            peçaSelecionada.setPosicaoPeça
+                                    (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()]
+                                            .getPosicao());
+
+
+                        } else {
+                            // se não foi possível comer peça
+                            peçaSelecionada.setXY
+                                    (peçaSelecionada.getPosX() + 1, peçaSelecionada.getPosY() - 1);
+
+                            //atualizar posição da peça
+                            peçaSelecionada.setPosicaoPeça
+                                    (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].getPosicao());
+                        }
+
+
+                        c.removePeça();
+                        minhaVez = false;
+
+                        if (peçaSelecionada.getPosY() == 0) {
+
+                            peçaSelecionada.setImagemPeça(imageFactory.createImage
+                                    (R.drawable.pecaazulrainha));
+                            peçaSelecionada.setRainha(true);
+                        }
+
+
                     }
 
                 }
-            }
-            RectF atualizar;
+                if (c2 != null) {// jogada para à esquerda
 
-            if (c1 != null) { // jogada para à direita
+                    atualizar = c2.getPosicao();
 
-                atualizar = c1.getPosicao();
+                    if (x >= atualizar.left & x <= atualizar.right &
+                            y >= atualizar.top & y <= atualizar.bottom) {
 
-                if (x >= atualizar.left & x <= atualizar.right &
-                        y >= atualizar.top & y <= atualizar.bottom) {
+                        //avançar 1 casa à cima e à esquerda na matriz
+                        c2.setPeça(peçaSelecionada);
 
-                    //avançar 1 casa à cima e à direita na matriz
-                    c1.setPeça(peçaSelecionada);
+                        // na classe da peça atualizar o seu local na matriz
 
-                    // na classe da peça atualizar o seu local na matriz
+                        //se for possivel comer peça
+                        if (peçasPossiveis.isEmpty() == false) {
 
-                    // se foi possivel comer peça entao
-                    if (peçasPossiveis.isEmpty() == false) {
+                            peçaSelecionada.setXY
+                                    (peçaSelecionada.getPosX() - 2, peçaSelecionada.getPosY() - 2);
 
-                        peçaSelecionada.setXY
-                                (peçaSelecionada.getPosX() + 2, peçaSelecionada.getPosY() - 2);
+                            // deletar peça do array inimigo
+                            peçaDeletar = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() + 1]
+                                    .getPeça();
 
-                        // deletar peça do array inimigo
+                            casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() + 1].removePeça();
 
-                        peçaDeletar = casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() + 1]
-                                .getPeça();
+                            //atualizar posição da peça
+                            peçaSelecionada.setPosicaoPeça
+                                    (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].getPosicao());
 
-                        casa[peçaSelecionada.getPosX() - 1][peçaSelecionada.getPosY() + 1].removePeça();
+                        } else {
+                            // se não for
+                            peçaSelecionada.setXY
+                                    (peçaSelecionada.getPosX() - 1, peçaSelecionada.getPosY() - 1);
 
-                        peçaSelecionada.setPosicaoPeça
-                                (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()]
-                                        .getPosicao());
+                            //atualizar posição da peça
+                            peçaSelecionada.setPosicaoPeça
+                                    (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].getPosicao());
+                        }
 
+                        c.removePeça();
+                        minhaVez = false;
 
-                    } else {
-                        // se não foi possível comer peça
-                        peçaSelecionada.setXY
-                                (peçaSelecionada.getPosX() + 1, peçaSelecionada.getPosY() - 1);
+                        //verificar se a peça se tornou rainha e atualizar a imagem
+                        if (peçaSelecionada.getPosY() == 0) {
 
-                        //atualizar posição da peça
-                        peçaSelecionada.setPosicaoPeça
-                                (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].getPosicao());
+                            peçaSelecionada.setImagemPeça(imageFactory.createImage
+                                    (R.drawable.pecaazulrainha));
+                            peçaSelecionada.setRainha(true);
+                        }
+
                     }
+                }
 
 
-                    c.removePeça();
-                    minhaVez = false;
+                //c.removePeça();
 
-                    if (peçaSelecionada.getPosY() == 0) {
+                for (Peça p : peçasPossiveis) {
+                    p.setEsquerda(false);
+                    p.setDireita(false);
+                }
 
-                        peçaSelecionada.setImagemPeça(imageFactory.createImage
-                                (R.drawable.pecaazulrainha));
-                        peçaSelecionada.setRainha(true);
+                boolean passarVez = false;
+                jogarNovamente = false;
+
+                if (comerPeca == true) {
+
+                    passarVez = this.comerPeçaNovamente();
+
+                }
+
+                if (!passarVez) {
+
+                    selecionar = false;
+                    peçaSelecionada = null;
+                    esquerda = direita = null;
+                    this.lugaresPossiveisRainha.clear();
+
+                    if (minhaVez == false) { // jogada do computador
+
+                        Thread th = new Thread(this);
+                        th.start();
+
                     }
-
 
                 }
 
             }
-            if (c2 != null) {// jogada para à esquerda
-
-                atualizar = c2.getPosicao();
-
-                if (x >= atualizar.left & x <= atualizar.right &
-                        y >= atualizar.top & y <= atualizar.bottom) {
-
-                    //avançar 1 casa à cima e à esquerda na matriz
-                    c2.setPeça(peçaSelecionada);
-
-                    // na classe da peça atualizar o seu local na matriz
-
-                    //se for possivel comer peça
-                    if (peçasPossiveis.isEmpty() == false) {
-
-                        peçaSelecionada.setXY
-                                (peçaSelecionada.getPosX() - 2, peçaSelecionada.getPosY() - 2);
-
-                        // deletar peça do array inimigo
-                        peçaDeletar = casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() + 1]
-                                .getPeça();
-
-                        casa[peçaSelecionada.getPosX() + 1][peçaSelecionada.getPosY() + 1].removePeça();
-
-                        //atualizar posição da peça
-                        peçaSelecionada.setPosicaoPeça
-                                (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].getPosicao());
-
-                    } else {
-                        // se não for
-                        peçaSelecionada.setXY
-                                (peçaSelecionada.getPosX() - 1, peçaSelecionada.getPosY() - 1);
-
-                        //atualizar posição da peça
-                        peçaSelecionada.setPosicaoPeça
-                                (casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].getPosicao());
-                    }
-
-                    c.removePeça();
-                    minhaVez = false;
-
-                    //verificar se a peça se tornou rainha e atualizar a imagem
-                    if (peçaSelecionada.getPosY() == 0) {
-
-                        peçaSelecionada.setImagemPeça(imageFactory.createImage
-                                (R.drawable.pecaazulrainha));
-                        peçaSelecionada.setRainha(true);
-                    }
-
-                }
-            }
-
-
-            //c.removePeça();
-
-            for (Peça p : peçasPossiveis) {
-                p.setEsquerda(false);
-                p.setDireita(false);
-            }
-
-            boolean passarVez = false;
-            jogarNovamente=false;
-
-              if(comerPeca == true){
-
-                  passarVez = this.comerPeçaNovamente();
-
-                           }
-
-            if(!passarVez) {
-
-                selecionar = false;
-                peçaSelecionada = null;
-                esquerda = direita = null;
-
-                if (minhaVez == false) { // jogada do computador
-
-                    Thread th = new Thread(this);
-                    th.start();
-
-                }
-
-            }
-
         }
-
     }
 
-    }
+    //}
 
     // jogada do computador
     private void inteligenciaArtificial() {
@@ -931,8 +964,6 @@ public class VisaoJogo extends SGView implements Runnable {
         inteligenciaArtificial();
     }
 
-    public boolean movimentacaoRainha(){return true;}
-
     public boolean comerPeçaNovamente(){
 
         esquerda = direita = null;
@@ -1044,4 +1075,125 @@ public class VisaoJogo extends SGView implements Runnable {
         return false;
     }
 
+    public void movimentacaoRainha(){
+
+       int x = peçaSelecionada.getPosX();
+       int y = peçaSelecionada.getPosY();
+
+       int posX = x;
+       int posY = y;
+
+       Casa casa1 = null;
+        // movimentação cima esquerda
+        while(posX > 0 & posY > 0){
+
+             posX = posX -1;
+             posY = posY -1;
+             casa1 = casa[posX][posY];
+
+            if(casa1.getPeça() == null){
+
+                this.lugaresPossiveisRainha.add(casa1);
+
+            }else{
+                break;
+            }
+
+        }
+
+        // movimentação cima direita
+        posX = x;
+        posY = y;
+        casa1 = null;
+
+        while(posX < 7 & posY > 0){
+
+            posX = posX +1;
+            posY = posY -1;
+            casa1 = casa[posX][posY];
+
+            if(casa1.getPeça() == null){
+
+                this.lugaresPossiveisRainha.add(casa1);
+
+            }else{
+                break;
+            }
+
+        }
+        // movimentação baixo esquerda
+
+        posX = x;
+        posY = y;
+        casa1 = null;
+
+        while(posX > 0 & posY < 7){
+
+            posX = posX -1;
+            posY = posY +1;
+            casa1 = casa[posX][posY];
+
+            if(casa1.getPeça() == null){
+
+                this.lugaresPossiveisRainha.add(casa1);
+
+            }else{
+                break;
+            }
+
+        }
+        //movimentação baixo direita
+        posX = x;
+        posY = y;
+        casa1 = null;
+
+        while(posX < 7 & posY < 7){
+
+            posX = posX +1;
+            posY = posY +1;
+            casa1 = casa[posX][posY];
+
+            if(casa1.getPeça() == null){
+
+                this.lugaresPossiveisRainha.add(casa1);
+
+            }else{
+                break;
+            }
+
+        }
+
+ /*
+        Casa c = null;
+        RectF atualizar = null;
+
+          for(Casa casa:lugaresPossiveisRainha){
+
+            atualizar = casa.getPosicao();
+
+            if(movX >= atualizar.left & movX <= atualizar.right &
+                    movY >= atualizar.bottom & movY <= atualizar.top){
+
+                c = casa;
+                selecionar = true;
+
+            }else{
+
+                selecionar = false;
+            }
+          }
+
+          if(c != null){
+
+
+              peçaSelecionada.setXY(c.getX(),c.getY());
+              peçaSelecionada.setPosicaoPeça(c.getPosicao());
+              c.setPeça(peçaSelecionada);
+              minhaVez = false;
+          }
+
+
+       // peçaSelecionada = null;
+        lugaresPossiveisRainha.clear(); */
+    }
 }
