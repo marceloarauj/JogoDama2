@@ -496,11 +496,11 @@ public class VisaoJogo extends SGView implements Runnable {
 
         } else {
 
-           /* if (peçaSelecionada.isRainha()) {
+            if (peçaSelecionada.isRainha()) {
 
-                this.movimentacaoRainha(x, y);
+                this.andarComARainha(x, y);
 
-            } else {*/
+            } else {
                 // casa atual da minha peça
                 Casa c = casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()];
                 // casa À direita
@@ -710,7 +710,7 @@ public class VisaoJogo extends SGView implements Runnable {
         }
     }
 
-    //}
+    }
 
     // jogada do computador
     private void inteligenciaArtificial() {
@@ -1075,7 +1075,7 @@ public class VisaoJogo extends SGView implements Runnable {
         return false;
     }
 
-    public void movimentacaoRainha(){
+    public void movimentacaoRainha(){ // lugares possiveis para movimentação da rainha
 
        int x = peçaSelecionada.getPosX();
        int y = peçaSelecionada.getPosY();
@@ -1163,37 +1163,41 @@ public class VisaoJogo extends SGView implements Runnable {
 
         }
 
- /*
+    }
+
+    public void andarComARainha(float x, float y){
+
         Casa c = null;
-        RectF atualizar = null;
 
-          for(Casa casa:lugaresPossiveisRainha){
+          for(Casa casa: lugaresPossiveisRainha){
 
-            atualizar = casa.getPosicao();
+              if(x >= casa.getPosicao().left & x <= casa.getPosicao().right &
+                      y >= casa.getPosicao().top & y <= casa.getPosicao().bottom){
 
-            if(movX >= atualizar.left & movX <= atualizar.right &
-                    movY >= atualizar.bottom & movY <= atualizar.top){
-
-                c = casa;
-                selecionar = true;
-
-            }else{
-
-                selecionar = false;
-            }
+                  c = casa;
+                  break;
+              }
           }
 
-          if(c != null){
+          lugaresPossiveisRainha.clear();
 
+          if(c != null){
+              casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].removePeça();
 
               peçaSelecionada.setXY(c.getX(),c.getY());
               peçaSelecionada.setPosicaoPeça(c.getPosicao());
               c.setPeça(peçaSelecionada);
+
+              selecionar = false;
               minhaVez = false;
+
+              Thread th = new Thread(this);
+              th.start();
+
+          }else{
+
+             selecionar = false;
+             minhaVez = true;
           }
-
-
-       // peçaSelecionada = null;
-        lugaresPossiveisRainha.clear(); */
     }
 }
