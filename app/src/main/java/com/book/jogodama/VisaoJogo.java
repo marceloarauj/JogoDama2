@@ -1254,6 +1254,8 @@ public class VisaoJogo extends SGView implements Runnable {
 
                        casas.add(casa[casa1.getX()-1][casa1.getY()-1]);
                        break;
+                   }else{
+                       break;
                    }
 
                 }
@@ -1275,10 +1277,12 @@ public class VisaoJogo extends SGView implements Runnable {
 
             if(casa1.getPeça() != null){
                 if(casa1.getPeça().getJogador() == 1){
-                    if(casa[casa1.getX()-1][casa1.getY()+1].getPeça() == null){
+                    if(casa[casa1.getX()+1][casa1.getY()-1].getPeça() == null){
 
 
-                        casas.add(casa[casa1.getX()-1][casa1.getY()+1]);
+                        casas.add(casa[casa1.getX()+1][casa1.getY()-1]);
+                        break;
+                    }else{
                         break;
                     }
 
@@ -1306,6 +1310,8 @@ public class VisaoJogo extends SGView implements Runnable {
 
                         casas.add(casa[casa1.getX()-1][casa1.getY()+1]);
                         break;
+                    }else{
+                        break;
                     }
 
                 }
@@ -1330,6 +1336,8 @@ public class VisaoJogo extends SGView implements Runnable {
 
 
                         casas.add(casa[casa1.getX()+1][casa1.getY()+1]);
+                        break;
+                    }else{
                         break;
                     }
 
@@ -1398,7 +1406,7 @@ public class VisaoJogo extends SGView implements Runnable {
                 else if(c.getX() > peçaSelecionada.getPosX() & c.getY() < peçaSelecionada.getPosY()){
 
                     peçasVermelhas.remove(casa[c.getX()-1][c.getY()+1].getPeça());
-                    casa[c.getX()-1][c.getY()-1].removePeça();
+                    casa[c.getX()-1][c.getY()+1].removePeça();
 
                     casa[peçaSelecionada.getPosX()][peçaSelecionada.getPosY()].removePeça();
                     peçaSelecionada.setXY(c.getX(),c.getY());
