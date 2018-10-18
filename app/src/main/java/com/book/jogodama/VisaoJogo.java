@@ -1417,8 +1417,6 @@ public class VisaoJogo extends SGView implements Runnable {
 
                 }
 
-            }else{
-                comer = false;
             }
 
         }
@@ -1441,16 +1439,23 @@ public class VisaoJogo extends SGView implements Runnable {
             selecionar = false;
         }else{
 
+            if(!this.comerPecaComoRainha(peçaSelecionada).isEmpty()){
+
+                minhaVez = true;
+                selecionar = true;
+
+            }else{
+
             minhaVez = false;
             selecionar = false;
+            peçaSelecionada = null;
 
             Thread th = new Thread(this);
             th.start();
+            }
         }
 
-        peçaSelecionada = null;
         this.comerPecaRainha.clear();
-
 
     }
 
