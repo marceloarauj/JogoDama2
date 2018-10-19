@@ -59,6 +59,7 @@ public class VisaoJogo extends SGView implements Runnable {
     RectF rect= new RectF();
 
     private boolean jogarNovamente = false;
+    private boolean jogarNovamenteRainha = false;
 
     @Override
     protected void setup(){ // usado para criar as configurações do desenho
@@ -732,13 +733,14 @@ public class VisaoJogo extends SGView implements Runnable {
 
                     }
 
-                }
+                } // se for para passar a vez
 
-            }
-        }
-    }
+            } // se a peça não for rainha
+        }// fim do else " if selecionar == false "
 
-    }
+    } // se for a minha vez
+
+    } // fim do metodo realizar jogada
 
     // jogada do computador
     private void inteligenciaArtificial() {
@@ -1258,6 +1260,8 @@ public class VisaoJogo extends SGView implements Runnable {
                        break;
                    }
 
+                }else{
+                    break;
                 }
 
             }
@@ -1286,6 +1290,8 @@ public class VisaoJogo extends SGView implements Runnable {
                         break;
                     }
 
+                }else{
+                    break;
                 }
 
             }
@@ -1314,6 +1320,8 @@ public class VisaoJogo extends SGView implements Runnable {
                         break;
                     }
 
+                }else{
+                    break;
                 }
 
             }
@@ -1341,6 +1349,8 @@ public class VisaoJogo extends SGView implements Runnable {
                         break;
                     }
 
+                }else{
+                    break;
                 }
 
             }
@@ -1433,29 +1443,46 @@ public class VisaoJogo extends SGView implements Runnable {
 
         }
 
+
         if(comer == false){
 
             minhaVez = true;
-            selecionar = false;
+
+            if(jogarNovamenteRainha) {
+
+                selecionar = true;
+
+                jogarNovamenteRainha = false;
+            }else{
+
+                selecionar = false;
+            }
+
         }else{
 
             if(!this.comerPecaComoRainha(peçaSelecionada).isEmpty()){
 
                 minhaVez = true;
                 selecionar = true;
+                comerPecaRainha = this.comerPecaComoRainha(peçaSelecionada);
+                peçasPossiveis.clear();
+                peçasPossiveis.add(peçaSelecionada);
+                jogarNovamenteRainha = true;
 
-            }else{
+            }else {
 
-            minhaVez = false;
-            selecionar = false;
-            peçaSelecionada = null;
+                minhaVez = false;
+                selecionar = false;
 
-            Thread th = new Thread(this);
-            th.start();
+                Thread th = new Thread(this);
+                th.start();
+                peçaSelecionada = null;
+                comerPecaRainha.clear();
+
             }
         }
 
-        this.comerPecaRainha.clear();
+
 
     }
 
