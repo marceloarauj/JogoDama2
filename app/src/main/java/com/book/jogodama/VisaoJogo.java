@@ -1447,16 +1447,16 @@ public class VisaoJogo extends SGView implements Runnable {
         if(comer == false){
 
             minhaVez = true;
+            selecionar = false;
 
             if(jogarNovamenteRainha) {
 
                 selecionar = true;
 
-                jogarNovamenteRainha = false;
-            }else{
-
-                selecionar = false;
             }
+
+
+
 
         }else{
 
@@ -1471,6 +1471,7 @@ public class VisaoJogo extends SGView implements Runnable {
 
             }else {
 
+                jogarNovamenteRainha = false;
                 minhaVez = false;
                 selecionar = false;
 
