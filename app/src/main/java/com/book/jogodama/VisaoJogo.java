@@ -762,15 +762,24 @@ public class VisaoJogo extends SGView implements Runnable {
         ArrayList<Peça> comerPeca = new ArrayList<>();
 
         // verificar se o oponente pode pegar alguma peça
-        for(int i=0; i < peçasVermelhas.size();i++){
+        for(int i=0; i < peçasVermelhas.size();i++) {
 
             Peça p = peçasVermelhas.get(i);
 
+            // se a peça atual for rainha
+            if (p.isRainha()) {
+
+                if(!this.comerPecaComoRainha(p).isEmpty()) {
+                    p.setArrayRainha(this.comerPecaComoRainha(p));
+                    comerPeca.add(p);
+                }
+
+            }else{
             // comer peça à esquerda
-            if(p.getPosX() > 1 & p.getPosY()< 6){ //verificar limite do tabuleiro
-                if(casa[p.getPosX()-1][p.getPosY()+1].getPeça() != null){ // verificar se existe peça
-                    if(casa[p.getPosX()-1][p.getPosY()+1].getPeça().getJogador()==2){// verificar se é do oponente
-                        if(casa[p.getPosX()-2][p.getPosY()+2].getPeça() == null){// verificar se existe uma peça após a mesma
+            if (p.getPosX() > 1 & p.getPosY() < 6) { //verificar limite do tabuleiro
+                if (casa[p.getPosX() - 1][p.getPosY() + 1].getPeça() != null) { // verificar se existe peça
+                    if (casa[p.getPosX() - 1][p.getPosY() + 1].getPeça().getJogador() == 2) {// verificar se é do oponente
+                        if (casa[p.getPosX() - 2][p.getPosY() + 2].getPeça() == null) {// verificar se existe uma peça após a mesma
 
                             p.setEsquerda(true);
                             comerPeca.add(p);
@@ -780,11 +789,11 @@ public class VisaoJogo extends SGView implements Runnable {
             }
 
             //comer peça à direita
-            if(p.getPosX()< 6 & p.getPosY() < 6){
+            if (p.getPosX() < 6 & p.getPosY() < 6) {
 
-                if(casa[p.getPosX()+1][p.getPosY()+1].getPeça() != null){ // verificar se existe peça
-                    if(casa[p.getPosX()+1][p.getPosY()+1].getPeça().getJogador()==2){// verificar se é do oponente
-                        if(casa[p.getPosX()+2][p.getPosY()+2].getPeça() == null){// verificar se existe uma peça após a mesma
+                if (casa[p.getPosX() + 1][p.getPosY() + 1].getPeça() != null) { // verificar se existe peça
+                    if (casa[p.getPosX() + 1][p.getPosY() + 1].getPeça().getJogador() == 2) {// verificar se é do oponente
+                        if (casa[p.getPosX() + 2][p.getPosY() + 2].getPeça() == null) {// verificar se existe uma peça após a mesma
 
                             p.setDireita(true);
                             comerPeca.add(p);
@@ -794,63 +803,140 @@ public class VisaoJogo extends SGView implements Runnable {
             }
         }
 
+        }
+
         // comer peça se for possível
 
         if(!comerPeca.isEmpty()){
 
             Peça p = comerPeca.get(rand.nextInt(comerPeca.size()));
 
-            if(p.getEsquerda()){ // comer peça à esquerda
-
-                casa[p.getPosX()][p.getPosY()].removePeça();
-                p.setXY(p.getPosX()-2,p.getPosY()+2);
-                casa[p.getPosX()][p.getPosY()].setPeça(p);
-                peçasBrancas.remove(casa[p.getPosX()+1][p.getPosY()-1].getPeça());
-                casa[p.getPosX()+1][p.getPosY()-1].removePeça();
-                p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
-
-            }else if(p.getDireita()){ // comer peça à direita
-
-                casa[p.getPosX()][p.getPosY()].removePeça();
-                p.setXY(p.getPosX()+2,p.getPosY()+2);
-                casa[p.getPosX()][p.getPosY()].setPeça(p);
-                peçasBrancas.remove(casa[p.getPosX()-1][p.getPosY()-1].getPeça());
-                casa[p.getPosX()-1][p.getPosY()-1].removePeça();
-                p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
-            }
-
-            while(this.comerPeçaNovamenteInimigo(p)){
-
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                if(p.getEsquerda()){ // comer peça à esquerda
+            if(!p.isRainha()) {
+                if (p.getEsquerda()) { // comer peça à esquerda
 
                     casa[p.getPosX()][p.getPosY()].removePeça();
-                    p.setXY(p.getPosX()-2,p.getPosY()+2);
+                    p.setXY(p.getPosX() - 2, p.getPosY() + 2);
                     casa[p.getPosX()][p.getPosY()].setPeça(p);
-                    peçasBrancas.remove(casa[p.getPosX()+1][p.getPosY()-1].getPeça());
-                    casa[p.getPosX()+1][p.getPosY()-1].removePeça();
+                    peçasBrancas.remove(casa[p.getPosX() + 1][p.getPosY() - 1].getPeça());
+                    casa[p.getPosX() + 1][p.getPosY() - 1].removePeça();
                     p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
 
-                }else if(p.getDireita()){ // comer peça à direita
+                } else if (p.getDireita()) { // comer peça à direita
 
                     casa[p.getPosX()][p.getPosY()].removePeça();
-                    p.setXY(p.getPosX()+2,p.getPosY()+2);
+                    p.setXY(p.getPosX() + 2, p.getPosY() + 2);
                     casa[p.getPosX()][p.getPosY()].setPeça(p);
-                    peçasBrancas.remove(casa[p.getPosX()-1][p.getPosY()-1].getPeça());
-                    casa[p.getPosX()-1][p.getPosY()-1].removePeça();
+                    peçasBrancas.remove(casa[p.getPosX() - 1][p.getPosY() - 1].getPeça());
+                    casa[p.getPosX() - 1][p.getPosY() - 1].removePeça();
                     p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
                 }
-            }
 
-            if(p.getPosY() == 7){
+                while (this.comerPeçaNovamenteInimigo(p)) {
 
-                p.setRainha(true);
-                p.setImagemPeça(this.getImageFactory().createImage(R.drawable.pecavermelharainha));
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (p.getEsquerda()) { // comer peça à esquerda
+
+                        casa[p.getPosX()][p.getPosY()].removePeça();
+                        p.setXY(p.getPosX() - 2, p.getPosY() + 2);
+                        casa[p.getPosX()][p.getPosY()].setPeça(p);
+                        peçasBrancas.remove(casa[p.getPosX() + 1][p.getPosY() - 1].getPeça());
+                        casa[p.getPosX() + 1][p.getPosY() - 1].removePeça();
+                        p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
+
+                    } else if (p.getDireita()) { // comer peça à direita
+
+                        casa[p.getPosX()][p.getPosY()].removePeça();
+                        p.setXY(p.getPosX() + 2, p.getPosY() + 2);
+                        casa[p.getPosX()][p.getPosY()].setPeça(p);
+                        peçasBrancas.remove(casa[p.getPosX() - 1][p.getPosY() - 1].getPeça());
+                        casa[p.getPosX() - 1][p.getPosY() - 1].removePeça();
+                        p.setPosicaoPeça(casa[p.getPosX()][p.getPosY()].getPosicao());
+                    }
+                }
+
+                if (p.getPosY() == 7) {
+
+                    p.setRainha(true);
+                    p.setImagemPeça(this.getImageFactory().createImage(R.drawable.pecavermelharainha));
+                }
+
+            }else{ // se o p for rainha
+
+                 while(!p.getComerPecaRainha().isEmpty()){
+
+                     try {
+                         Thread.sleep(1200);
+                     } catch (InterruptedException e) {
+                         e.printStackTrace();
+                     }
+
+
+                 Casa c = p.getComerPecaRainha().get(rand.nextInt(p.getComerPecaRainha().size()));
+
+                if(c.getX() > p.getPosX() & c.getY() > p.getPosY()){
+
+                    peçasBrancas.remove(casa[c.getX()-1][c.getY()-1].getPeça());
+                    casa[c.getX()-1][c.getY()-1].removePeça();
+
+                    casa[p.getPosX()][p.getPosY()].removePeça();
+                    p.setXY(c.getX(),c.getY());
+                    p.setPosicaoPeça(c.getPosicao());
+
+                    casa[p.getPosX()][p.getPosY()].
+                            setPeça(p);
+
+
+                }
+                //baixo esquerda
+                else if(c.getX() <p.getPosX() & c.getY() > p.getPosY()){
+
+                    peçasBrancas.remove(casa[c.getX()+1][c.getY()-1].getPeça());
+                    casa[c.getX()+1][c.getY()-1].removePeça();
+
+                    casa[p.getPosX()][p.getPosY()].removePeça();
+                    p.setXY(c.getX(),c.getY());
+                    p.setPosicaoPeça(c.getPosicao());
+
+                    casa[p.getPosX()][p.getPosY()].
+                            setPeça(p);
+                }
+                // cima esquerda
+                else if(c.getX() < p.getPosX() & c.getY() < p.getPosY()){
+
+
+                    peçasBrancas.remove(casa[c.getX()+1][c.getY()+1].getPeça());
+                    casa[c.getX()+1][c.getY()+1].removePeça();
+
+                    casa[p.getPosX()][p.getPosY()].removePeça();
+                    p.setXY(c.getX(),c.getY());
+                    p.setPosicaoPeça(c.getPosicao());
+
+                    casa[p.getPosX()][p.getPosY()].
+                            setPeça(p);
+                }
+                // cima direita
+                else if(c.getX() > p.getPosX() & c.getY() < p.getPosY()){
+
+                    peçasBrancas.remove(casa[c.getX()-1][c.getY()+1].getPeça());
+                    casa[c.getX()-1][c.getY()+1].removePeça();
+
+                    casa[p.getPosX()][p.getPosY()].removePeça();
+                    p.setXY(c.getX(),c.getY());
+                    p.setPosicaoPeça(c.getPosicao());
+
+                    casa[p.getPosX()][p.getPosY()].
+                            setPeça(p);
+
+                }
+
+                 p.setArrayRainha(this.comerPecaComoRainha(p));
+
+                 }
             }
 
         }else {
@@ -862,6 +948,13 @@ public class VisaoJogo extends SGView implements Runnable {
                 escolhidaX = pecaEscolhida.getPosX();
                 escolhidaY = pecaEscolhida.getPosY();
 
+                if(pecaEscolhida.isRainha()){
+                    if(!this.movimentacaoRainhaInimiga(pecaEscolhida).isEmpty()){
+
+                        selecaoDePeca = false;
+                    }
+
+                }else{
 
                 if (escolhidaX < 7 & escolhidaY < 7) {
 
@@ -894,78 +987,94 @@ public class VisaoJogo extends SGView implements Runnable {
 
 
                 }
+                }
             }
             // movimentar peça para um local aleatório, se o random for = 0 direita, se for =1 esquerda
             // se cair 0 e não puder movimentar para a direita, movimentar para a esquerda
             movimentar = rand.nextInt(2);
-            // simular o pensamento do computador de forma mais devagar
 
-            if (movimentar == 0) {
+            if(pecaEscolhida.isRainha()){
 
-                if (direita != null) {
+                ArrayList<Casa> listaAtual = this.movimentacaoRainhaInimiga(pecaEscolhida);
+                Casa c = listaAtual.get(rand.nextInt(listaAtual.size()));
 
-                    direita.setPeça(pecaEscolhida);
-                    pecaEscolhida.setXY(escolhidaX + 1, escolhidaY + 1);
-                    pecaEscolhida.setPosicaoPeça(direita.getPosicao());
+                casa[pecaEscolhida.getPosX()][pecaEscolhida.getPosY()].removePeça();
 
-                    //peça se do oponente se torna rainha
-                    if (pecaEscolhida.getPosY() == 7) {
+                pecaEscolhida.setXY(c.getX(),c.getY());
 
-                        pecaEscolhida.setImagemPeça
-                                (getImageFactory().createImage(R.drawable.pecavermelharainha));
+                pecaEscolhida.setPosicaoPeça
+                        (casa[pecaEscolhida.getPosX()][pecaEscolhida.getPosY()].getPosicao());
 
-                        pecaEscolhida.setRainha(true);
+                casa[pecaEscolhida.getPosX()][pecaEscolhida.getPosY()].setPeça(pecaEscolhida);
 
+            }else {
+                if (movimentar == 0) {
+
+                    if (direita != null) {
+
+                        direita.setPeça(pecaEscolhida);
+                        pecaEscolhida.setXY(escolhidaX + 1, escolhidaY + 1);
+                        pecaEscolhida.setPosicaoPeça(direita.getPosicao());
+
+                        //peça se do oponente se torna rainha
+                        if (pecaEscolhida.getPosY() == 7) {
+
+                            pecaEscolhida.setImagemPeça
+                                    (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                            pecaEscolhida.setRainha(true);
+
+                        }
+
+                    } else {
+
+                        esquerda.setPeça(pecaEscolhida);
+                        pecaEscolhida.setXY(escolhidaX - 1, escolhidaY + 1);
+                        pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
+
+                        //peça se do oponente se torna rainha
+                        if (pecaEscolhida.getPosY() == 7) {
+
+                            pecaEscolhida.setImagemPeça
+                                    (getImageFactory().createImage(R.drawable.pecavermelharainha));
+
+                            pecaEscolhida.setRainha(true);
+                        }
                     }
 
-                } else {
+                } else if (movimentar == 1) {
 
-                    esquerda.setPeça(pecaEscolhida);
-                    pecaEscolhida.setXY(escolhidaX - 1, escolhidaY + 1);
-                    pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
+                    if (esquerda != null) {
 
-                    //peça se do oponente se torna rainha
-                    if (pecaEscolhida.getPosY() == 7) {
+                        esquerda.setPeça(pecaEscolhida);
+                        pecaEscolhida.setXY(escolhidaX - 1, escolhidaY + 1);
+                        pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
 
-                        pecaEscolhida.setImagemPeça
-                                (getImageFactory().createImage(R.drawable.pecavermelharainha));
+                        //peça se do oponente se torna rainha
+                        if (pecaEscolhida.getPosY() == 7) {
 
-                        pecaEscolhida.setRainha(true);
-                    }
-                }
+                            pecaEscolhida.setImagemPeça
+                                    (getImageFactory().createImage(R.drawable.pecavermelharainha));
 
-            } else if (movimentar == 1) {
+                            pecaEscolhida.setRainha(true);
 
-                if (esquerda != null) {
+                        }
 
-                    esquerda.setPeça(pecaEscolhida);
-                    pecaEscolhida.setXY(escolhidaX - 1, escolhidaY + 1);
-                    pecaEscolhida.setPosicaoPeça(esquerda.getPosicao());
+                    } else {
 
-                    //peça se do oponente se torna rainha
-                    if (pecaEscolhida.getPosY() == 7) {
+                        direita.setPeça(pecaEscolhida);
+                        pecaEscolhida.setXY(escolhidaX + 1, escolhidaY + 1);
+                        pecaEscolhida.setPosicaoPeça(direita.getPosicao());
 
-                        pecaEscolhida.setImagemPeça
-                                (getImageFactory().createImage(R.drawable.pecavermelharainha));
+                        //peça se do oponente se torna rainha
+                        if (pecaEscolhida.getPosY() == 7) {
 
-                        pecaEscolhida.setRainha(true);
+                            pecaEscolhida.setImagemPeça
+                                    (getImageFactory().createImage(R.drawable.pecavermelharainha));
 
-                    }
+                            pecaEscolhida.setRainha(true);
 
-                } else {
-
-                    direita.setPeça(pecaEscolhida);
-                    pecaEscolhida.setXY(escolhidaX + 1, escolhidaY + 1);
-                    pecaEscolhida.setPosicaoPeça(direita.getPosicao());
-
-                    //peça se do oponente se torna rainha
-                    if (pecaEscolhida.getPosY() == 7) {
-
-                        pecaEscolhida.setImagemPeça
-                                (getImageFactory().createImage(R.drawable.pecavermelharainha));
-
-                        pecaEscolhida.setRainha(true);
-
+                        }
                     }
                 }
             }
@@ -974,6 +1083,10 @@ public class VisaoJogo extends SGView implements Runnable {
         for(Peça p: peçasVermelhas){
             p.setEsquerda(false);
             p.setDireita(false);
+
+            if(p.isRainha()){
+                p.getComerPecaRainha().clear();
+            }
         }
 
         peçasPossiveis.clear();
@@ -1195,6 +1308,98 @@ public class VisaoJogo extends SGView implements Runnable {
 
     }
 
+    public ArrayList<Casa> movimentacaoRainhaInimiga(Peça p){
+
+        int x = p.getPosX();
+        int y = p.getPosY();
+
+        int posX = x;
+        int posY = y;
+
+        ArrayList<Casa> lugaresPossiv = new ArrayList<>();
+
+        Casa casa1 = null;
+        // movimentação cima esquerda
+        while(posX > 0 & posY > 0){
+
+            posX = posX -1;
+            posY = posY -1;
+            casa1 = casa[posX][posY];
+
+            if(casa1.getPeça() == null){
+
+                lugaresPossiv.add(casa1);
+
+            }else{
+                break;
+            }
+
+        }
+
+        // movimentação cima direita
+        posX = x;
+        posY = y;
+        casa1 = null;
+
+        while(posX < 7 & posY > 0){
+
+            posX = posX +1;
+            posY = posY -1;
+            casa1 = casa[posX][posY];
+
+            if(casa1.getPeça() == null){
+
+                lugaresPossiv.add(casa1);
+
+            }else{
+                break;
+            }
+
+        }
+        // movimentação baixo esquerda
+
+        posX = x;
+        posY = y;
+        casa1 = null;
+
+        while(posX > 0 & posY < 7){
+
+            posX = posX -1;
+            posY = posY +1;
+            casa1 = casa[posX][posY];
+
+            if(casa1.getPeça() == null){
+
+                lugaresPossiv.add(casa1);
+
+            }else{
+                break;
+            }
+
+        }
+        //movimentação baixo direita
+        posX = x;
+        posY = y;
+        casa1 = null;
+
+        while(posX < 7 & posY < 7){
+
+            posX = posX +1;
+            posY = posY +1;
+            casa1 = casa[posX][posY];
+
+            if(casa1.getPeça() == null){
+
+               lugaresPossiv.add(casa1);
+
+            }else{
+                break;
+            }
+
+        }
+        return lugaresPossiv;
+    }
+
     public void andarComARainha(float x, float y){
 
         Casa c = null;
@@ -1235,6 +1440,11 @@ public class VisaoJogo extends SGView implements Runnable {
 
         int x = pe.getPosX();
         int y = pe.getPosY();
+        int jogador = 1;
+
+        if(!minhaVez){
+            jogador = 2;
+        }
 
         ArrayList<Casa> casas = new ArrayList<>();
 
@@ -1250,7 +1460,7 @@ public class VisaoJogo extends SGView implements Runnable {
             casa1 = casa[posX][posY];
 
             if(casa1.getPeça() != null){
-                if(casa1.getPeça().getJogador() == 1){
+                if(casa1.getPeça().getJogador() == jogador){
                    if(casa[casa1.getX()-1][casa1.getY()-1].getPeça() == null){
 
 
@@ -1280,7 +1490,7 @@ public class VisaoJogo extends SGView implements Runnable {
             casa1 = casa[posX][posY];
 
             if(casa1.getPeça() != null){
-                if(casa1.getPeça().getJogador() == 1){
+                if(casa1.getPeça().getJogador() == jogador){
                     if(casa[casa1.getX()+1][casa1.getY()-1].getPeça() == null){
 
 
@@ -1310,7 +1520,7 @@ public class VisaoJogo extends SGView implements Runnable {
             casa1 = casa[posX][posY];
 
             if(casa1.getPeça() != null){
-                if(casa1.getPeça().getJogador() == 1){
+                if(casa1.getPeça().getJogador() == jogador){
                     if(casa[casa1.getX()-1][casa1.getY()+1].getPeça() == null){
 
 
@@ -1339,7 +1549,7 @@ public class VisaoJogo extends SGView implements Runnable {
             casa1 = casa[posX][posY];
 
             if(casa1.getPeça() != null){
-                if(casa1.getPeça().getJogador() == 1){
+                if(casa1.getPeça().getJogador() == jogador){
                     if(casa[casa1.getX()+1][casa1.getY()+1].getPeça() == null){
 
 
