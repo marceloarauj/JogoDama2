@@ -1,14 +1,12 @@
 package com.book.jogodama;
 
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
-import android.provider.Telephony;
 
 import com.book.simplegameenginev1.SGImage;
 import com.book.simplegameenginev1.SGImageFactory;
@@ -21,6 +19,7 @@ import java.util.Random;
 public class VisaoJogo extends SGView implements Runnable {
 
     public VisaoJogo(Context context) {
+
         super(context);
     }
 
@@ -61,6 +60,10 @@ public class VisaoJogo extends SGView implements Runnable {
     private boolean jogarNovamente = false;
     private boolean jogarNovamenteRainha = false;
 
+
+    RectF fimDeJogo = new RectF();
+    SGImage fim;
+
     @Override
     protected void setup(){ // usado para criar as configurações do desenho
 
@@ -100,6 +103,13 @@ public class VisaoJogo extends SGView implements Runnable {
         int cima= viewCenter.y - alturaTabuleiro/2;
         int direita=viewCenter.x+larguraTabuleiro/2;
         int baixo=viewCenter.y+alturaTabuleiro/2;
+
+        fim = getImageFactory().createImage(R.drawable.vitoriaaviso);
+
+        fimDeJogo.set(viewCenter.x - fim.getDimensions().x/2,
+                      viewCenter.y - fim.getDimensions().y/2,
+                     viewCenter.x +fim.getDimensions().x/2,
+                   viewCenter.y +fim.getDimensions().y/2);
 
         posicaoTabuleiro.set(esquerda,cima,direita,baixo);
 
@@ -178,6 +188,7 @@ public class VisaoJogo extends SGView implements Runnable {
            }
         }
 
+        mTempImageSource.set(0,0,227,61);
 
         //finalizar desenho
         renderer.endDrawing();
@@ -351,6 +362,7 @@ public class VisaoJogo extends SGView implements Runnable {
 
 
     public void realizarJogada(float x, float y) {
+
 
         // verificar se é minha vez
         if(minhaVez){
@@ -1090,6 +1102,8 @@ public class VisaoJogo extends SGView implements Runnable {
         }
 
         peçasPossiveis.clear();
+
+
         minhaVez = true;
     }
 
@@ -1684,6 +1698,7 @@ public class VisaoJogo extends SGView implements Runnable {
                 jogarNovamenteRainha = false;
                 minhaVez = false;
                 selecionar = false;
+
 
                 Thread th = new Thread(this);
                 th.start();
