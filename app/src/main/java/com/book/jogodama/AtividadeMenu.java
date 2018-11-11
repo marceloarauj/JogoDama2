@@ -21,6 +21,9 @@ public class AtividadeMenu extends SGAcivity {
         setContentView(menu);
 
     }
+
+
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -40,6 +43,7 @@ public class AtividadeMenu extends SGAcivity {
             }else if (e == VisaoMenu.Acao.Sair){
 
                 this.finish();
+                this.onDestroy();
             }
 
         }

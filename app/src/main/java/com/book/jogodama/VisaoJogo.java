@@ -34,6 +34,8 @@ public class VisaoJogo extends SGView implements Runnable {
     private Peça peçaDeletar = null;
 
     private SGImage tabuleiro;
+    private SGImage minhaVezImg;
+    private SGImage vezDoOponenteImg;
 
     private boolean selecionar = false;
 
@@ -55,14 +57,15 @@ public class VisaoJogo extends SGView implements Runnable {
     Casa esquerda = null;
     Casa direita = null;
 
-    RectF rect= new RectF();
+    // retangulos float do aviso de vez
+    RectF minhaVezRect = new RectF();
+    RectF vezDoOponent = new RectF();
 
     private boolean jogarNovamente = false;
     private boolean jogarNovamenteRainha = false;
 
 
-    RectF fimDeJogo = new RectF();
-    SGImage fim;
+
 
     @Override
     protected void setup(){ // usado para criar as configurações do desenho
@@ -73,6 +76,9 @@ public class VisaoJogo extends SGView implements Runnable {
         SGImageFactory imageFactory = getImageFactory();
         //adicionar imagem do tabuleiro
         tabuleiro = imageFactory.createImage(R.drawable.tabuleirov2);
+        minhaVezImg = imageFactory.createImage(R.drawable.suavez);
+        vezDoOponenteImg= imageFactory.createImage(R.drawable.vezdooponente);
+
         // adicionar imagem das peças vermelhas
         for(int i =0; i < 12; i++){
 
@@ -104,14 +110,18 @@ public class VisaoJogo extends SGView implements Runnable {
         int direita=viewCenter.x+larguraTabuleiro/2;
         int baixo=viewCenter.y+alturaTabuleiro/2;
 
-        fim = getImageFactory().createImage(R.drawable.vitoriaaviso);
-
-        fimDeJogo.set(viewCenter.x - fim.getDimensions().x/2,
-                      viewCenter.y - fim.getDimensions().y/2,
-                     viewCenter.x +fim.getDimensions().x/2,
-                   viewCenter.y +fim.getDimensions().y/2);
-
         posicaoTabuleiro.set(esquerda,cima,direita,baixo);
+
+        // posicao dos avisos de turno
+        minhaVezRect.set(viewCenter.x - 105,
+                          posicaoTabuleiro.bottom,
+                         viewCenter.x+105,
+                  posicaoTabuleiro.bottom+120);
+
+        vezDoOponent.set(viewCenter.x - 105,
+                         posicaoTabuleiro.top-120,
+                             viewCenter.x+120,
+                               posicaoTabuleiro.top);
 
         configurarPeças(viewCenter); // posição das peças com o canvas
         configurarTabuleiro(viewCenter); // matriz
@@ -186,6 +196,15 @@ public class VisaoJogo extends SGView implements Runnable {
 
                renderer.drawRect(c.getPosicao(),Color.YELLOW);
            }
+        }
+        mTempImageSource.set(0,0,210,120);
+
+        if(minhaVez){
+
+            renderer.drawImage(minhaVezImg,mTempImageSource,minhaVezRect);
+        }else{
+
+            renderer.drawImage(vezDoOponenteImg,mTempImageSource,vezDoOponent);
         }
 
         mTempImageSource.set(0,0,227,61);
@@ -363,6 +382,12 @@ public class VisaoJogo extends SGView implements Runnable {
 
     public void realizarJogada(float x, float y) {
 
+        if(peçasBrancas.isEmpty()){
+
+            while(true){
+
+            }
+        }
 
         // verificar se é minha vez
         if(minhaVez){
@@ -758,6 +783,13 @@ public class VisaoJogo extends SGView implements Runnable {
     private void inteligenciaArtificial() {
 
         // algoritmo: 1- Escolher uma peça aleatória 2- verificar possibilidade 3- movimentar
+
+        if(peçasVermelhas.isEmpty()) {
+
+            while(true){
+
+          }
+        }
 
         boolean fimDaJogadaComputador = false;
         boolean selecaoDePeca = true;
