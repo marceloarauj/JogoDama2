@@ -25,7 +25,7 @@ public class VisaoJogo extends SGView implements Runnable {
 
     private ArrayList<Peça> peçasVermelhas = new ArrayList<>(); // oponente
     private ArrayList<Peça> peçasBrancas = new ArrayList<>();
-    ArrayList<Peça> peçasPossiveis = new ArrayList<>(); // possíveis peças para movimentação
+    ArrayList<Peça> peçasPossiveis = new ArrayList<>(); // peças que podem comer outras peças
     ArrayList<Casa> lugaresPossiveisRainha = new ArrayList<>();
     ArrayList<Casa> comerPecaRainha = new ArrayList<>();
 
@@ -79,7 +79,7 @@ public class VisaoJogo extends SGView implements Runnable {
         minhaVezImg = imageFactory.createImage(R.drawable.suavez);
         vezDoOponenteImg= imageFactory.createImage(R.drawable.vezdooponente);
 
-        // adicionar imagem das peças vermelhas
+        // adicionar imagem das peças vermelhas, id do jogador
         for(int i =0; i < 12; i++){
 
             Peça peça = new Peça();

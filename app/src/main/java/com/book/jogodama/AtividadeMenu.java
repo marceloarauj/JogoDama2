@@ -39,11 +39,13 @@ public class AtividadeMenu extends SGAcivity {
 
             }else if(e == VisaoMenu.Acao.Multiplayer){
 
+                Intent inter = new Intent(this,AtividadeMultiplayer.class);
+                startActivity(inter);
 
             }else if (e == VisaoMenu.Acao.Sair){
 
-                this.finish();
-                this.onDestroy();
+                //this.finish();
+                System.exit(0);
             }
 
         }
